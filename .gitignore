@@ -1,0 +1,6 @@
+articles.json
+images/
+scraper.log
+__pycache__/
+*.pyc
+.env

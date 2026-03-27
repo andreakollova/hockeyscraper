@@ -1,0 +1,14 @@
+services:
+  - type: cron
+    name: hockey-scraper
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    schedule: "0 5,14 * * *"   # každý deň o 5:00 a 14:00 UTC
+    startCommand: python scraper.py
+    envVars:
+      - key: DATA_DIR
+        value: /data
+    disk:
+      name: hockey-data
+      mountPath: /data
+      sizeGB: 1
