@@ -1,32 +1,39 @@
 #!/usr/bin/env python3
 """
-Hockey.nl article scraper
-- Downloads the 20 latest articles from hockey.nl/nieuws
-- On each run adds only new articles (skips already saved ones)
-- Saves metadata to articles.json
-- Downloads images to ./images/
+Hockey.nl scraper → Supabase
+- Stiahne 20 najnovších článkov z hockey.nl/nieuws
+- Stiahne videá Hoofdklasse Dames + Heren z homepage hockey.nl
+- Preloží title do slovenčiny (OpenAI GPT-4o-mini)
+- Uloží do Supabase tabuliek `articles` a `videos`
+- Pri ďalšom spustení preskočí už uložené záznamy
 """
 
-import json
 import os
 import re
 import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import urljoin, urlparse
 
+# Load .env file if present
+_env_file = Path(__file__).parent / ".env"
+if _env_file.exists():
+    for line in _env_file.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip())
+
+from openai import OpenAI
 import requests
 from bs4 import BeautifulSoup
+from supabase import create_client, Client
 
-BASE_URL = "https://www.hockey.nl"
-NIEUWS_URL = "https://www.hockey.nl/nieuws"
-CDN_BASE = "https://cdn.static-hw.nl"
-# On Render: set DATA_DIR=/data (persistent disk mount point)
-# Locally: defaults to the script's own directory
-_DATA_DIR = Path(os.environ.get("DATA_DIR", Path(__file__).parent))
-ARTICLES_FILE = _DATA_DIR / "articles.json"
-IMAGES_DIR = _DATA_DIR / "images"
+BASE_URL     = "https://www.hockey.nl"
+NIEUWS_URL   = "https://www.hockey.nl/nieuws"
+HOME_URL     = "https://www.hockey.nl"
+CDN_BASE     = "https://cdn.static-hw.nl"
+MAX_ARTICLES = 20
 
 HEADERS = {
     "User-Agent": (
@@ -39,26 +46,124 @@ HEADERS = {
     "Referer": "https://www.hockey.nl/",
 }
 
-MAX_ARTICLES = 20
+TRANSLATE_SYSTEM = """\
+Si profesionálny prekladateľ športových správ z holandčiny do slovenčiny.
+
+Pravidlá:
+- Prekladaj prirodzene a plynulo, ako by to napísal slovenský novinár
+- Slovo "hockey" a všetky jeho odvodeniny vždy nahraď správnym slovenským tvarom "pozemný hokej":
+  - hockey → pozemný hokej
+  - hockeyer / hockeyspeler → hráč pozemného hokeja
+  - hockeyclub → klub pozemného hokeja
+  - hockeyseizoen → sezóna pozemného hokeja
+  - hockeywedstrijd → zápas pozemného hokeja
+  - veld hockey → pozemný hokej
+  - hockey.nl → pozemný hokej (alebo vynechaj odkaz)
+- Zachovaj mená hráčov, klubov a miest v originále
+- Zachovaj čísla, výsledky a štatistiky presne
+- Výstup: iba preložený text, bez komentárov
+"""
 
 
-# ── helpers ───────────────────────────────────────────────────────────────────
+# ── OpenAI preklad ─────────────────────────────────────────────────────────────
 
-def load_existing() -> dict:
-    """Load articles.json; return dict keyed by article URL."""
-    if ARTICLES_FILE.exists():
-        with open(ARTICLES_FILE, encoding="utf-8") as f:
-            data = json.load(f)
-        return {a["url"]: a for a in data}
-    return {}
+def translate(title: str, text: str) -> tuple[str, str]:
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        print("  [warn] OPENAI_API_KEY chýba — preskakujem preklad")
+        return title, text
+
+    client = OpenAI(api_key=api_key)
+    prompt = f"""Prelož nasledujúci článok o pozemnom hokeji z holandčiny do slovenčiny.
+
+NADPIS:
+{title}
+
+TEXT:
+{text}
+
+Odpovedz presne v tomto formáte (zachovaj značky ###):
+### NADPIS ###
+<preložený nadpis>
+
+### TEXT ###
+<preložený text>"""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            max_tokens=4096,
+            messages=[
+                {"role": "system", "content": TRANSLATE_SYSTEM},
+                {"role": "user", "content": prompt},
+            ],
+        )
+        output = response.choices[0].message.content.strip()
+        title_sk = title
+        text_sk  = text
+        title_match = re.search(r"### NADPIS ###\s*\n(.+?)(?:\n\n### TEXT ###|\Z)", output, re.DOTALL)
+        text_match  = re.search(r"### TEXT ###\s*\n(.+)", output, re.DOTALL)
+        if title_match:
+            title_sk = title_match.group(1).strip()
+        if text_match:
+            text_sk  = text_match.group(1).strip()
+        return title_sk, text_sk
+    except Exception as e:
+        print(f"  [warn] Preklad zlyhal: {e}")
+        return title, text
 
 
-def save_articles(articles: dict) -> None:
-    """Persist articles dict (values) sorted newest-first."""
-    lst = sorted(articles.values(), key=lambda a: a.get("scraped_at", ""), reverse=True)
-    with open(ARTICLES_FILE, "w", encoding="utf-8") as f:
-        json.dump(lst, f, ensure_ascii=False, indent=2)
+def translate_title(title: str) -> str:
+    """Preloží iba jeden nadpis (pre videá)."""
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        return title
+    client = OpenAI(api_key=api_key)
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            max_tokens=200,
+            messages=[
+                {"role": "system", "content": TRANSLATE_SYSTEM},
+                {"role": "user", "content": f"Prelož tento nadpis do slovenčiny (iba nadpis, žiadne komentáre):\n{title}"},
+            ],
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"  [warn] Preklad nadpisu zlyhal: {e}")
+        return title
 
+
+# ── Supabase ──────────────────────────────────────────────────────────────────
+
+def get_supabase() -> Client:
+    url = os.environ.get("SUPABASE_URL")
+    key = os.environ.get("SUPABASE_KEY")
+    if not url or not key:
+        print("[error] Chýbajú env premenné SUPABASE_URL a SUPABASE_KEY")
+        sys.exit(1)
+    return create_client(url, key)
+
+
+def load_existing_urls(db: Client) -> set:
+    res = db.table("articles").select("url").execute()
+    return {row["url"] for row in res.data}
+
+
+def load_existing_video_ids(db: Client) -> set:
+    res = db.table("videos").select("youtube_id").execute()
+    return {row["youtube_id"] for row in res.data}
+
+
+def insert_article(db: Client, article: dict) -> None:
+    db.table("articles").insert(article).execute()
+
+
+def insert_video(db: Client, video: dict) -> None:
+    db.table("videos").insert(video).execute()
+
+
+# ── HTTP fetch ────────────────────────────────────────────────────────────────
 
 def fetch(url: str, retries: int = 3) -> "requests.Response | None":
     for attempt in range(retries):
@@ -72,64 +177,45 @@ def fetch(url: str, retries: int = 3) -> "requests.Response | None":
     return None
 
 
-def image_filename(url: str) -> str:
-    """Derive a safe local filename from an image URL."""
-    name = urlparse(url).path.split("/")[-1]
-    name = re.sub(r"[?#].*$", "", name)
-    return name or "image.jpg"
-
-
-def download_image(url: str) -> "str | None":
-    """Download image, return local relative path or None on failure."""
-    IMAGES_DIR.mkdir(parents=True, exist_ok=True)
-    fname = image_filename(url)
-    local = IMAGES_DIR / fname
-    if local.exists():
-        return f"images/{fname}"
-    r = fetch(url)
-    if r is None:
-        return None
-    with open(local, "wb") as f:
-        f.write(r.content)
-    return f"images/{fname}"
-
-
-# ── listing page parser ───────────────────────────────────────────────────────
+# ── Listing page ──────────────────────────────────────────────────────────────
 
 def get_article_links(html: str) -> list[str]:
-    """
-    Extract article URLs from the /nieuws listing page.
-    The rendered HTML contains <a href="/nieuws/[slug]"> links.
-    """
     soup = BeautifulSoup(html, "html.parser")
     seen = set()
     urls = []
-
     slug_re = re.compile(r"^/nieuws/[a-z0-9][a-z0-9\-]+$")
-
     for tag in soup.find_all("a", href=True):
         path = tag["href"].rstrip("/")
         if slug_re.match(path) and path not in seen:
             seen.add(path)
             urls.append(BASE_URL + path)
-
     return urls[:MAX_ARTICLES]
 
 
-# ── article detail scraper ────────────────────────────────────────────────────
+# ── Filters ───────────────────────────────────────────────────────────────────
+
+def _is_editorial_note(text: str) -> bool:
+    lower = text.lower()
+    return any(kw in lower for kw in [
+        "redactie@hockey.nl",
+        "redakcia@hockey.nl",
+        "mail naar redactie",
+        "laat het ons weten",
+        "stuur een mail",
+        "aanvullingen?",
+        "iets mist",
+    ])
+
+
+# ── Article detail ────────────────────────────────────────────────────────────
 
 def scrape_article(url: str) -> dict:
-    """
-    Fetch individual article page and extract:
-    title, body text, main image URL.
-    """
     r = fetch(url)
     if r is None:
         return {}
 
     soup = BeautifulSoup(r.text, "html.parser")
 
-    # ── title ──────────────────────────────────────────────────────────────
     title = ""
     h1 = soup.find("h1")
     if h1:
@@ -139,23 +225,16 @@ def scrape_article(url: str) -> dict:
         if og:
             title = og.get("content", "").strip()
 
-    # ── body text ──────────────────────────────────────────────────────────
-    # Article content lives in <article class="prose ..."> elements.
-    # Navigation/sidebar uses identical classes but sits inside <header>/<nav>.
-    # Strategy: remove header and nav first, then collect prose <article> tags.
     for tag in soup.find_all(["header", "nav", "footer"]):
         tag.decompose()
-
     paragraphs = []
     for art in soup.find_all("article", class_="prose"):
         for p in art.find_all("p"):
             txt = p.get_text(" ", strip=True)
             if txt and txt not in paragraphs:
                 paragraphs.append(txt)
+    text = "\n\n".join(p for p in paragraphs if not _is_editorial_note(p))
 
-    text = "\n\n".join(paragraphs)
-
-    # ── main image ─────────────────────────────────────────────────────────
     image_url = ""
     og_img = soup.find("meta", property="og:image")
     if og_img:
@@ -167,71 +246,178 @@ def scrape_article(url: str) -> dict:
                 image_url = src
                 break
 
-    return {
-        "title": title,
-        "text": text,
-        "image_url": image_url,
-    }
+    return {"title": title, "text": text, "image_url": image_url}
 
 
-# ── main ──────────────────────────────────────────────────────────────────────
+# ── Video scraping z homepage ─────────────────────────────────────────────────
+
+def scrape_videos_from_homepage(html: str) -> list[dict]:
+    """
+    Parsuje homepage hockey.nl a vracia videá rozdelené podľa kategórie.
+    Hľadá sekcie s nadpisom obsahujúcim 'Dames' alebo 'Heren',
+    potom v každej sekcii zbiera YouTube linky a thumbnaily.
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    results = []
+
+    # Nájdeme všetky YouTube watch linky s h3 názvom
+    # Každý link má tvar: <a href="https://www.youtube.com/watch?v=...">...<h3>Názov</h3>...</a>
+    yt_re = re.compile(r"youtube\.com/watch\?v=([\w-]+)")
+
+    # Prejdeme celý DOM a ku každému video linku zistíme kategóriu
+    # podľa najbližšieho nadradeného elementu obsahujúceho "Dames"/"Heren" v headingu
+    for a_tag in soup.find_all("a", href=yt_re):
+        href = a_tag.get("href", "")
+        m = yt_re.search(href)
+        if not m:
+            continue
+        video_id = m.group(1)
+
+        # Nadpis videa
+        h3 = a_tag.find("h3")
+        title = h3.get_text(strip=True) if h3 else ""
+        if not title:
+            continue
+
+        # Thumbnail
+        img = a_tag.find("img", src=re.compile(r"i\.ytimg\.com"))
+        thumbnail = img["src"] if img else f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg"
+
+        # Kategória — hľadáme najbližší ancestor s textom Dames/Heren
+        category = _detect_category(a_tag)
+
+        results.append({
+            "youtube_id": video_id,
+            "title": title,
+            "thumbnail_url": thumbnail,
+            "youtube_url": f"https://www.youtube.com/watch?v={video_id}",
+            "category": category,
+        })
+
+    return results
+
+
+def _detect_category(tag) -> str:
+    """
+    Prejde nadradenou hierarchiou tagu a hľadá sekciu s 'Dames' alebo 'Heren'.
+    """
+    node = tag.parent
+    depth = 0
+    while node and node.name and depth < 15:
+        text = node.get_text(" ", strip=True)
+        # Hľadáme heading obsahujúci Dames alebo Heren
+        for heading in node.find_all(["h1", "h2", "h3", "h4", "span", "p"], limit=5):
+            t = heading.get_text(strip=True)
+            if "dames" in t.lower():
+                return "dames"
+            if "heren" in t.lower():
+                return "heren"
+        node = node.parent
+        depth += 1
+    return "heren"  # fallback
+
+
+def scrape_videos(db: Client, html: str) -> int:
+    existing_ids = load_existing_video_ids(db)
+    print(f"  Existujúce videá v DB: {len(existing_ids)}")
+
+    videos = scrape_videos_from_homepage(html)
+    print(f"  Nájdených {len(videos)} videí na homepage")
+
+    new_count = 0
+    for v in videos:
+        if v["youtube_id"] in existing_ids:
+            print(f"    [skip]  {v['youtube_id']}")
+            continue
+
+        print(f"    [new]   [{v['category']}] {v['title'][:60]}")
+        title_sk = translate_title(v["title"])
+
+        row = {
+            "youtube_id":    v["youtube_id"],
+            "title":         v["title"],
+            "title_sk":      title_sk,
+            "thumbnail_url": v["thumbnail_url"],
+            "youtube_url":   v["youtube_url"],
+            "category":      v["category"],
+            "published_at":  datetime.now(timezone.utc).isoformat(),
+            "scraped_at":    datetime.now(timezone.utc).isoformat(),
+        }
+        insert_video(db, row)
+        existing_ids.add(v["youtube_id"])
+        new_count += 1
+        time.sleep(0.3)
+
+    return new_count
+
+
+# ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
-    print(f"[{datetime.now():%Y-%m-%d %H:%M:%S}] Starting hockey.nl scraper")
-    IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+    print(f"[{datetime.now():%Y-%m-%d %H:%M:%S}] Spúšťam hockey.nl scraper")
 
-    existing = load_existing()
-    print(f"  Existing articles in JSON: {len(existing)}")
+    db = get_supabase()
 
-    # 1. Fetch listing page
-    print(f"  Fetching {NIEUWS_URL} …")
-    r = fetch(NIEUWS_URL)
-    if r is None:
-        print("[error] Could not fetch news page. Aborting.")
+    # ── Stiahni homepage (použije sa pre články aj videá) ──
+    print(f"  Sťahujem {NIEUWS_URL} …")
+    r_nieuws = fetch(NIEUWS_URL)
+    if r_nieuws is None:
+        print("[error] Nepodarilo sa načítať news stránku.")
         sys.exit(1)
 
-    # 2. Extract article URLs from HTML
-    article_urls = get_article_links(r.text)
+    # ── Články ──
+    existing_urls = load_existing_urls(db)
+    print(f"  Existujúce články v DB: {len(existing_urls)}")
+
+    article_urls = get_article_links(r_nieuws.text)
     if not article_urls:
-        print("[error] No article links found. Page structure may have changed.")
+        print("[error] Žiadne linky nenájdené.")
         sys.exit(1)
-    print(f"  Found {len(article_urls)} articles on listing page")
+    print(f"  Nájdených {len(article_urls)} článkov na stránke")
 
-    # 3. Process each article – skip already saved ones
-    new_count = 0
+    new_articles = 0
     for url in article_urls:
-        if url in existing:
+        if url in existing_urls:
             print(f"  [skip]  {url.split('/')[-1]}")
             continue
 
         print(f"  [fetch] {url.split('/')[-1]}")
-        article = scrape_article(url)
-        time.sleep(0.6)   # polite crawl delay
+        detail = scrape_article(url)
+        time.sleep(0.6)
 
-        article["url"] = url
-        article.pop("date", None)
-        article["scraped_at"] = datetime.now(timezone.utc).isoformat()
+        if not detail:
+            print(f"  [error] Nepodarilo sa načítať: {url}")
+            continue
 
-        # download image
-        if article.get("image_url"):
-            local_path = download_image(article["image_url"])
-            article["image_local"] = local_path or ""
-            if local_path:
-                print(f"           image → {local_path}")
-        else:
-            article["image_local"] = ""
+        title = detail.get("title", "")
+        text  = detail.get("text", "")
+        print(f"  [translate] …")
+        title_sk, text_sk = translate(title, text)
 
-        existing[url] = article
-        new_count += 1
+        row = {
+            "url":        url,
+            "title":      title,
+            "text":       text,
+            "title_sk":   title_sk,
+            "text_sk":    text_sk,
+            "image_url":  detail.get("image_url", ""),
+            "scraped_at": datetime.now(timezone.utc).isoformat(),
+        }
+        insert_article(db, row)
+        new_articles += 1
 
-    # 4. Persist
-    save_articles(existing)
+    print(f"\n  Články — nové: {new_articles}, celkom: {len(existing_urls) + new_articles}")
 
-    print(f"\n  Done.")
-    print(f"  New articles added : {new_count}")
-    print(f"  Total in JSON      : {len(existing)}")
-    print(f"  Images dir         : {IMAGES_DIR}")
-    print(f"  JSON file          : {ARTICLES_FILE}")
+    # ── Videá ──
+    print(f"\n  Sťahujem homepage pre videá …")
+    r_home = fetch(HOME_URL)
+    if r_home is None:
+        print("  [warn] Nepodarilo sa načítať homepage — preskakujem videá")
+    else:
+        new_videos = scrape_videos(db, r_home.text)
+        print(f"  Videá — nové: {new_videos}")
+
+    print(f"\n[hotovo]")
 
 
 if __name__ == "__main__":
