@@ -2,6 +2,7 @@
 """
 Multi-country field hockey scraper → Supabase
 Scrapes the latest 4 articles from:
+  - Netherlands (hockey.nl)
   - Ireland   (hockey.ie)
   - Scotland  (scottish-hockey.org.uk)
   - Australia (hockey.org.au)
@@ -53,6 +54,15 @@ HEADERS = {
 #       "fr" = French  → translate to English
 
 SITES = [
+    {
+        "key":       "netherlands",
+        "name":      "Hockey Netherlands",
+        "news_url":  "https://www.hockey.nl/nieuws",
+        "base_url":  "https://www.hockey.nl",
+        "lang":      "nl",
+        "link_re":   re.compile(r"^https?://(?:www\.)?hockey\.nl/nieuws/[a-z0-9][a-z0-9\-]+/?$", re.I),
+        "rel_re":    re.compile(r"^/nieuws/[a-z0-9][a-z0-9\-]+/?$", re.I),
+    },
     # Ireland uses WordPress REST API (news listing page has no article links)
     {
         "key":       "ireland",
@@ -165,7 +175,7 @@ HEADLINE RULES:
 - Do NOT use colons (:) or dashes (-) in the headline.
 """
 
-LANG_NAMES = {"en": "English", "es": "Spanish", "de": "German", "fr": "French"}
+LANG_NAMES = {"en": "English", "nl": "Dutch", "es": "Spanish", "de": "German", "fr": "French"}
 
 
 def rewrite_article(title: str, text: str, source_lang: str = "en", country_name: str = "") -> tuple[str, str]:

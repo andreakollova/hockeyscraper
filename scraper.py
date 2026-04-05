@@ -47,21 +47,12 @@ HEADERS = {
 }
 
 TRANSLATE_SYSTEM = """\
-Si profesionálny prekladateľ športových správ z holandčiny do slovenčiny.
-
-Pravidlá:
-- Prekladaj prirodzene a plynulo, ako by to napísal slovenský novinár
-- Slovo "hockey" a všetky jeho odvodeniny vždy nahraď správnym slovenským tvarom "pozemný hokej":
-  - hockey → pozemný hokej
-  - hockeyer / hockeyspeler → hráč pozemného hokeja
-  - hockeyclub → klub pozemného hokeja
-  - hockeyseizoen → sezóna pozemného hokeja
-  - hockeywedstrijd → zápas pozemného hokeja
-  - veld hockey → pozemný hokej
-  - hockey.nl → pozemný hokej (alebo vynechaj odkaz)
-- Zachovaj mená hráčov, klubov a miest v originále
-- Zachovaj čísla, výsledky a štatistiky presne
-- Výstup: iba preložený text, bez komentárov
+You are a professional field hockey sports journalist translating Dutch to English.
+Rules:
+- Translate naturally into polished English sports journalism style.
+- Always use "field hockey" (never ice hockey terminology).
+- Preserve player names, club names, scores, and dates exactly.
+- Output only the translated text, no comments or explanations.
 """
 
 
@@ -114,7 +105,7 @@ Odpovedz presne v tomto formáte (zachovaj značky ###):
 
 
 def translate_title(title: str) -> str:
-    """Preloží iba jeden nadpis (pre videá)."""
+    """Translate a Dutch video title to English."""
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         return title
@@ -125,12 +116,12 @@ def translate_title(title: str) -> str:
             max_tokens=200,
             messages=[
                 {"role": "system", "content": TRANSLATE_SYSTEM},
-                {"role": "user", "content": f"Prelož tento nadpis do slovenčiny (iba nadpis, žiadne komentáre):\n{title}"},
+                {"role": "user", "content": f"Translate this title to English (title only, no comments):\n{title}"},
             ],
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
-        print(f"  [warn] Preklad nadpisu zlyhal: {e}")
+        print(f"  [warn] Title translation failed: {e}")
         return title
 
 
@@ -354,70 +345,23 @@ def scrape_videos(db: Client, html: str) -> int:
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
-    print(f"[{datetime.now():%Y-%m-%d %H:%M:%S}] Spúšťam hockey.nl scraper")
+    print(f"[{datetime.now():%Y-%m-%d %H:%M:%S}] Starting hockey.nl video scraper")
 
     db = get_supabase()
 
-    # ── Stiahni homepage (použije sa pre články aj videá) ──
-    print(f"  Sťahujem {NIEUWS_URL} …")
-    r_nieuws = fetch(NIEUWS_URL)
-    if r_nieuws is None:
-        print("[error] Nepodarilo sa načítať news stránku.")
-        sys.exit(1)
+    # Articles are now handled by multi_scraper.py (Dutch → English)
+    # This script only scrapes hockey.nl videos (Hoofdklasse Dames / Heren)
 
-    # ── Články ──
-    existing_urls = load_existing_urls(db)
-    print(f"  Existujúce články v DB: {len(existing_urls)}")
-
-    article_urls = get_article_links(r_nieuws.text)
-    if not article_urls:
-        print("[error] Žiadne linky nenájdené.")
-        sys.exit(1)
-    print(f"  Nájdených {len(article_urls)} článkov na stránke")
-
-    new_articles = 0
-    for url in article_urls:
-        if url in existing_urls:
-            print(f"  [skip]  {url.split('/')[-1]}")
-            continue
-
-        print(f"  [fetch] {url.split('/')[-1]}")
-        detail = scrape_article(url)
-        time.sleep(0.6)
-
-        if not detail:
-            print(f"  [error] Nepodarilo sa načítať: {url}")
-            continue
-
-        title = detail.get("title", "")
-        text  = detail.get("text", "")
-        print(f"  [translate] …")
-        title_sk, text_sk = translate(title, text)
-
-        row = {
-            "url":        url,
-            "title":      title,
-            "text":       text,
-            "title_sk":   title_sk,
-            "text_sk":    text_sk,
-            "image_url":  detail.get("image_url", ""),
-            "scraped_at": datetime.now(timezone.utc).isoformat(),
-        }
-        insert_article(db, row)
-        new_articles += 1
-
-    print(f"\n  Články — nové: {new_articles}, celkom: {len(existing_urls) + new_articles}")
-
-    # ── Videá ──
-    print(f"\n  Sťahujem homepage pre videá …")
+    print(f"  Fetching homepage for videos …")
     r_home = fetch(HOME_URL)
     if r_home is None:
-        print("  [warn] Nepodarilo sa načítať homepage — preskakujem videá")
-    else:
-        new_videos = scrape_videos(db, r_home.text)
-        print(f"  Videá — nové: {new_videos}")
+        print("[error] Failed to load homepage — skipping videos")
+        sys.exit(1)
 
-    print(f"\n[hotovo]")
+    new_videos = scrape_videos(db, r_home.text)
+    print(f"  Videos — new: {new_videos}")
+
+    print(f"\n[done]")
 
 
 if __name__ == "__main__":
