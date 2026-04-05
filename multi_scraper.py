@@ -171,8 +171,11 @@ IMPORTANT RULES:
 - For non-English sources, translate fully and naturally to English first, then apply the style.
 
 HEADLINE RULES:
-- Write as a natural, flowing English sentence.
+- NEVER translate the original headline directly — always craft a NEW, original headline.
+- The headline must capture the story's key angle but use completely different wording.
+- Write as a natural, flowing English sentence. Think like a sports editor, not a translator.
 - Do NOT use colons (:) or dashes (-) in the headline.
+- Vary the sentence structure: sometimes lead with the subject, sometimes with the result or action.
 """
 
 LANG_NAMES = {"en": "English", "nl": "Dutch", "es": "Spanish", "de": "German", "fr": "French"}
