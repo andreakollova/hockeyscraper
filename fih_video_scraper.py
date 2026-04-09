@@ -84,12 +84,20 @@ def scrape_fih_videos(html: str) -> list[dict]:
             heading = article.find(["h1", "h2", "h3", "h4"])
             title = heading.get_text(strip=True) if heading else f"FIH Hockey Video {video_id}"
 
+        # Detect mens/womens from FIH title markers like "| PAK (M) |" or "| CHI (W) |"
+        if re.search(r'\(M\)', title):
+            category = "fih-mens"
+        elif re.search(r'\(W\)', title):
+            category = "fih-womens"
+        else:
+            category = "fih"
+
         results.append({
             "youtube_id":    video_id,
             "title":         title,
             "thumbnail_url": f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg",
             "youtube_url":   f"https://www.youtube.com/watch?v={video_id}",
-            "category":      "fih",
+            "category":      category,
         })
 
         if len(results) >= MAX_VIDEOS:

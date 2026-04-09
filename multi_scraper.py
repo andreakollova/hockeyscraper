@@ -36,7 +36,7 @@ import requests
 from bs4 import BeautifulSoup
 from supabase import create_client, Client
 
-MAX_ARTICLES = 4  # scrape only the last 4 articles per site
+MAX_ARTICLES = 5  # scrape only the last 5 articles per site
 
 HEADERS = {
     "User-Agent": (
@@ -132,14 +132,20 @@ SITES = [
     {
         "key":       "germany",
         "name":      "Hockey Germany",
-        "news_url":  "https://www.hockey.de/articles/",
+        # /news/ shows more recent articles than /articles/
+        "news_url":  "https://www.hockey.de/news/",
         "base_url":  "https://www.hockey.de",
         "lang":      "de",
         # Articles at /articles/<slug>
-        "link_re":        re.compile(r"^https?://(?:www\.)?hockey\.de/articles/[a-z0-9][a-z0-9\-]+/?$", re.I),
-        "rel_re":         re.compile(r"^/articles/[a-z0-9][a-z0-9\-]+/?$", re.I),
-        # og:image is a tiny 400x400 thumb; use the full-size hero image instead
+        "link_re":        re.compile(r"^https?://(?:www\.)?hockey\.de/articles/[a-z0-9][a-z0-9\-]+", re.I),
+        "rel_re":         re.compile(r"^/articles/[a-z0-9][a-z0-9\-]+", re.I),
+        # Title is in a dedicated element (h1/h2/h3 on the page are unrelated articles)
+        "title_selector": "div.custom-page__headline",
+        # og:image is a tiny 400x400 thumb; use the full-size hero image only (no fallback)
         "image_selector": "img.custom-page__hero-image",
+        "no_og_image":    True,  # skip og:image fallback — no image is better than thumbnail
+        # article body lives here; avoids scraping the "More Articles" section below
+        "text_selector":  "div.custom-page__article",
     },
     {
         "key":       "belgium",
@@ -174,6 +180,8 @@ HEADLINE RULES:
 - NEVER translate the original headline directly — always craft a NEW, original headline.
 - The headline must capture the story's key angle but use completely different wording.
 - Write as a natural, flowing English sentence. Think like a sports editor, not a translator.
+- Use sentence case: capitalise only the first word and proper nouns/abbreviations (e.g. EHL, FIH, team names). \
+Do NOT capitalise every word.
 - Do NOT use colons (:) or dashes (-) in the headline.
 - Vary the sentence structure: sometimes lead with the subject, sometimes with the result or action.
 """
@@ -353,7 +361,7 @@ def _is_boilerplate(text: str) -> bool:
 
 # ── Article detail scraper ─────────────────────────────────────────────────────
 
-def scrape_article(url: str, image_selector: str = "", base_url: str = "", title_selector: str = "") -> dict:
+def scrape_article(url: str, image_selector: str = "", base_url: str = "", title_selector: str = "", text_selector: str = "", no_og_image: bool = False) -> dict:
     r = fetch(url)
     if r is None:
         return {}
@@ -388,20 +396,29 @@ def scrape_article(url: str, image_selector: str = "", base_url: str = "", title
     for tag in soup.find_all(["header", "nav", "footer", "aside", "script", "style"]):
         tag.decompose()
 
-    # Body text — try article/main, then broad content divs
+    # Body text — site-specific selector takes priority
     paragraphs: list[str] = []
-    containers = (
-        soup.find_all("article")
-        or soup.find_all("main")
-        or soup.find_all("div", class_=re.compile(
-            r"content|body|article|text|post|entry|news|story", re.I
-        ))
-    )
-    for container in containers:
-        for p in container.find_all("p"):
-            txt = p.get_text(" ", strip=True)
-            if txt and len(txt) > 40 and not _is_boilerplate(txt) and txt not in paragraphs:
-                paragraphs.append(txt)
+    if text_selector:
+        container = soup.select_one(text_selector)
+        if container:
+            for p in container.find_all("p"):
+                txt = p.get_text(" ", strip=True)
+                if txt and len(txt) > 40 and not _is_boilerplate(txt) and txt not in paragraphs:
+                    paragraphs.append(txt)
+
+    if not paragraphs:
+        containers = (
+            soup.find_all("article")
+            or soup.find_all("main")
+            or soup.find_all("div", class_=re.compile(
+                r"content|body|article|text|post|entry|news|story", re.I
+            ))
+        )
+        for container in containers:
+            for p in container.find_all("p"):
+                txt = p.get_text(" ", strip=True)
+                if txt and len(txt) > 40 and not _is_boilerplate(txt) and txt not in paragraphs:
+                    paragraphs.append(txt)
 
     # Fallback: all paragraphs on page
     if not paragraphs:
@@ -420,7 +437,7 @@ def scrape_article(url: str, image_selector: str = "", base_url: str = "", title
             src = el.get("src", "") or el.get("data-src", "")
             if src:
                 image_url = src if src.startswith("http") else base_url.rstrip("/") + src
-    if not image_url:
+    if not image_url and not no_og_image:
         og_img = soup.find("meta", property="og:image")
         if og_img:
             image_url = og_img.get("content", "").strip()
@@ -470,7 +487,7 @@ def scrape_site(db: Client, site: dict, existing_urls: set) -> int:
             continue
 
         print(f"  [fetch] {url.split('/')[-1] or url}")
-        detail = scrape_article(url, image_selector=site.get("image_selector",""), base_url=site.get("base_url",""), title_selector=site.get("title_selector",""))
+        detail = scrape_article(url, image_selector=site.get("image_selector",""), base_url=site.get("base_url",""), title_selector=site.get("title_selector",""), text_selector=site.get("text_selector",""), no_og_image=site.get("no_og_image", False))
         time.sleep(1.0)  # polite crawl delay
 
         if not detail or not detail.get("title"):
@@ -496,7 +513,14 @@ def scrape_site(db: Client, site: dict, existing_urls: set) -> int:
             "image_url":  detail.get("image_url", ""),
             "scraped_at": datetime.now(timezone.utc).isoformat(),
         }
-        db.table("articles").insert(row).execute()
+        try:
+            db.table("articles").insert(row).execute()
+        except Exception as e:
+            if "duplicate" in str(e).lower() or "23505" in str(e):
+                existing_urls.add(url)
+                print(f"  [dup]    already in DB (skipping): {url.split('/')[-1]}")
+                continue
+            raise
         existing_urls.add(url)
         new_count += 1
         print(f"  [saved]  {title_rw[:70]}")

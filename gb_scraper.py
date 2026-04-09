@@ -61,6 +61,8 @@ HEADLINE RULES:
 - NEVER use the original headline — always craft a NEW, original headline in your own words.
 - The headline must capture the story's key angle but use completely different wording.
 - Write as a natural, flowing English sentence. Think like a sports editor, not a translator.
+- Use sentence case: capitalise only the first word and proper nouns/abbreviations (e.g. EHL, FIH, team names). \
+Do NOT capitalise every word.
 - Do NOT use colons (:) or dashes (-) in the headline.
 - Vary the sentence structure: sometimes lead with the subject, sometimes with the result or action.
 - Example: instead of "GB: victory over Belgium" → "Great Britain claim stunning victory over Belgium"
@@ -276,6 +278,7 @@ def main():
             "text_sk":    text_rw,
             "image_url":  detail.get("image_url", ""),
             "scraped_at": datetime.now(timezone.utc).isoformat(),
+            "published":  False,
         }
         db.table("articles").insert(row).execute()
         existing_urls.add(url)
