@@ -3,7 +3,7 @@ services:
     name: hockey-scraper-nl
     runtime: python
     buildCommand: pip install -r requirements.txt
-    schedule: "0 7,10,12 * * *"
+    schedule: "0 9,17 * * *"
     startCommand: python scraper.py
     envVars:
       - key: SUPABASE_URL
@@ -17,7 +17,7 @@ services:
     name: hockey-scraper-gb
     runtime: python
     buildCommand: pip install -r requirements.txt
-    schedule: "10 7,10,12 * * *"
+    schedule: "10 9,17 * * *"
     startCommand: python gb_scraper.py
     envVars:
       - key: SUPABASE_URL
@@ -31,7 +31,7 @@ services:
     name: hockey-scraper-multi
     runtime: python
     buildCommand: pip install -r requirements.txt
-    schedule: "20 7,10,12 * * *"
+    schedule: "20 9,17 * * *"
     startCommand: python multi_scraper.py
     envVars:
       - key: SUPABASE_URL
@@ -45,7 +45,7 @@ services:
     name: hockey-scraper-fih-videos
     runtime: python
     buildCommand: pip install -r requirements.txt
-    schedule: "30 7,10,12 * * *"
+    schedule: "30 9,17 * * *"
     startCommand: python fih_video_scraper.py
     envVars:
       - key: SUPABASE_URL
