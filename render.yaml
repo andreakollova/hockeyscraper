@@ -1,54 +1,14 @@
 services:
   - type: cron
-    name: hockey-scraper-nl
+    name: hockey-scraper
     runtime: python
     buildCommand: pip install -r requirements.txt
     schedule: "0 9,17 * * *"
-    startCommand: python scraper.py
+    startCommand: python run_all.py
     envVars:
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_KEY
         sync: false
       - key: OPENAI_API_KEY
-        sync: false
-
-  - type: cron
-    name: hockey-scraper-gb
-    runtime: python
-    buildCommand: pip install -r requirements.txt
-    schedule: "10 9,17 * * *"
-    startCommand: python gb_scraper.py
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_KEY
-        sync: false
-      - key: OPENAI_API_KEY
-        sync: false
-
-  - type: cron
-    name: hockey-scraper-multi
-    runtime: python
-    buildCommand: pip install -r requirements.txt
-    schedule: "20 9,17 * * *"
-    startCommand: python multi_scraper.py
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_KEY
-        sync: false
-      - key: OPENAI_API_KEY
-        sync: false
-
-  - type: cron
-    name: hockey-scraper-fih-videos
-    runtime: python
-    buildCommand: pip install -r requirements.txt
-    schedule: "30 9,17 * * *"
-    startCommand: python fih_video_scraper.py
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_KEY
         sync: false
