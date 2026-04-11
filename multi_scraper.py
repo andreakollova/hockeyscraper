@@ -10,12 +10,15 @@ Scrapes the latest 4 articles from:
   - Argentina (cahockey.org.ar)
   - Germany   (hockey.de)
   - Belgium   (hockey.be)
+  - EuroHockey (eurohockey.org)
+  - FIH       (fih.hockey)
 
 All articles are rewritten / translated into polished English.
 Stored in the same Supabase `articles` table as the NL and GB scrapers.
 Respects robots.txt conventions: polite crawl delays, only public news pages.
 """
 
+import json
 import os
 import re
 import sys
@@ -82,6 +85,10 @@ SITES = [
         "selector":  "article a[href], h2 a[href], h3 a[href], .entry-title a[href]",
         "link_re":   re.compile(r"^https?://(?:www\.)?scottish-hockey\.org\.uk/[a-z0-9][a-z0-9\-]+/?$", re.I),
         "rel_re":    re.compile(r"^/[a-z0-9][a-z0-9\-]+/?$", re.I),
+        # WordPress featured image (cloudfront CDN); falls back to og:image then generic
+        "image_selector":   "img.wp-post-image, .post-thumbnail img, .entry-content img[src*='cloudfront']",
+        # Used when no image is found on the article page
+        "fallback_image":   "https://pozemak.sk/scotish-hockey.png",
     },
     {
         "key":       "australia",
@@ -155,6 +162,29 @@ SITES = [
         "base_url":  "https://hockey.be",
         "lang":      "fr",
         "wp_api":    True,
+    },
+    {
+        "key":       "eurohockey",
+        "name":      "EuroHockey",
+        # Next.js + headless WordPress. Try __NEXT_DATA__ Apollo cache first,
+        # then fall back to HTML link extraction.
+        "news_url":  "https://eurohockey.org/news/",
+        "base_url":  "https://eurohockey.org",
+        "lang":      "en",
+        "next_data": True,
+        "link_re":   re.compile(r"^https?://(?:www\.)?eurohockey\.org/(?:news/)?[a-z0-9][a-z0-9\-]+/?$", re.I),
+        "rel_re":    re.compile(r"^/(?:news/)?[a-z0-9][a-z0-9\-]+/?$", re.I),
+    },
+    {
+        "key":       "fih",
+        "name":      "FIH Hockey",
+        # Next.js site. Try __NEXT_DATA__ first, then HTML link extraction.
+        "news_url":  "https://www.fih.hockey/news",
+        "base_url":  "https://www.fih.hockey",
+        "lang":      "en",
+        "next_data": True,
+        "link_re":   re.compile(r"^https?://(?:www\.)?fih\.hockey/news/[a-z0-9][a-z0-9\-/]+[a-z0-9]/?$", re.I),
+        "rel_re":    re.compile(r"^/news/[a-z0-9][a-z0-9\-/]+[a-z0-9]/?$", re.I),
     },
 ]
 
@@ -267,6 +297,55 @@ def fetch(url: str, retries: int = 3) -> "requests.Response | None":
 
 
 # ── Link extraction ────────────────────────────────────────────────────────────
+
+def get_article_links_next_data(site: dict) -> list[str]:
+    """Extract article URLs from Next.js __NEXT_DATA__ Apollo cache, then fall back to HTML links."""
+    r = fetch(site["news_url"])
+    if r is None:
+        return []
+
+    soup = BeautifulSoup(r.text, "html.parser")
+    link_re = site["link_re"]
+    base_url = site["base_url"]
+
+    # Primary: parse __NEXT_DATA__ JSON (Next.js server-side props)
+    script = soup.find("script", id="__NEXT_DATA__")
+    if script and script.string:
+        try:
+            data = json.loads(script.string)
+            # Walk entire structure looking for URI/link fields that match article pattern
+            urls: list[str] = []
+            seen: set[str] = set()
+
+            def _walk(obj: object) -> None:
+                if len(urls) >= MAX_ARTICLES:
+                    return
+                if isinstance(obj, dict):
+                    for key in ("uri", "link", "href", "url", "slug"):
+                        val = obj.get(key, "")
+                        if not isinstance(val, str) or not val:
+                            continue
+                        full = val if val.startswith("http") else base_url.rstrip("/") + val
+                        if link_re.match(full) and full not in seen:
+                            seen.add(full)
+                            urls.append(full)
+                    for v in obj.values():
+                        _walk(v)
+                elif isinstance(obj, list):
+                    for item in obj:
+                        _walk(item)
+
+            _walk(data)
+            if urls:
+                print(f"  [next_data] found {len(urls)} URLs")
+                return urls
+        except Exception as e:
+            print(f"  [warn] __NEXT_DATA__ parse error: {e}")
+
+    # Fallback: parse <a href> links from HTML
+    print("  [next_data] falling back to HTML link extraction")
+    return get_article_links(r.text, site)
+
 
 def get_article_links_wp_api(site: dict) -> list[str]:
     """Fetch article URLs via WordPress REST API."""
@@ -467,6 +546,8 @@ def scrape_site(db: Client, site: dict, existing_urls: set) -> int:
         article_urls = get_article_links_wp_api(site)
     elif site.get("hi_api"):
         article_urls = get_article_links_hi_api(site)
+    elif site.get("next_data"):
+        article_urls = get_article_links_next_data(site)
     else:
         r = fetch(site["news_url"])
         if r is None:
@@ -504,13 +585,14 @@ def scrape_site(db: Client, site: dict, existing_urls: set) -> int:
         print(f"  [rewrite] {title[:60]}…")
         title_rw, text_rw = rewrite_article(title, text, site["lang"], site["name"])
 
+        image_url = detail.get("image_url", "") or site.get("fallback_image", "")
         row = {
             "url":        url,
             "title":      title,
             "text":       text,
             "title_sk":   title_rw,
             "text_sk":    text_rw,
-            "image_url":  detail.get("image_url", ""),
+            "image_url":  image_url,
             "scraped_at": datetime.now(timezone.utc).isoformat(),
             "published":  False,
         }
