@@ -512,6 +512,7 @@ def scrape_site(db: Client, site: dict, existing_urls: set) -> int:
             "text_sk":    text_rw,
             "image_url":  detail.get("image_url", ""),
             "scraped_at": datetime.now(timezone.utc).isoformat(),
+            "published":  False,
         }
         try:
             db.table("articles").insert(row).execute()
