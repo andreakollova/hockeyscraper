@@ -166,14 +166,12 @@ SITES = [
     {
         "key":       "eurohockey",
         "name":      "EuroHockey",
-        # Next.js + headless WordPress. Try __NEXT_DATA__ Apollo cache first,
-        # then fall back to HTML link extraction.
-        "news_url":  "https://eurohockey.org/news/",
+        # WP backend lives at admin.eurohockey.org; articles served at eurohockey.org/<slug>/
+        # Category 74 = general News
+        "news_url":  "https://admin.eurohockey.org/wp-json/wp/v2/posts?per_page=5&categories=74&_fields=link",
         "base_url":  "https://eurohockey.org",
         "lang":      "en",
-        "next_data": True,
-        "link_re":   re.compile(r"^https?://(?:www\.)?eurohockey\.org/(?:news/)?[a-z0-9][a-z0-9\-]+/?$", re.I),
-        "rel_re":    re.compile(r"^/(?:news/)?[a-z0-9][a-z0-9\-]+/?$", re.I),
+        "wp_api":    True,
     },
     {
         "key":       "fih",
