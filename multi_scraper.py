@@ -582,6 +582,9 @@ def scrape_site(db: Client, site: dict, existing_urls: set) -> int:
 
         print(f"  [rewrite] {title[:60]}…")
         title_rw, text_rw = rewrite_article(title, text, site["lang"], site["name"])
+        # Ensure title always starts with a capital letter
+        if title_rw and title_rw[0].islower():
+            title_rw = title_rw[0].upper() + title_rw[1:]
 
         image_url = detail.get("image_url", "") or site.get("fallback_image", "")
         row = {
