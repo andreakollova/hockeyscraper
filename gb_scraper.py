@@ -278,7 +278,7 @@ def main():
             "text_sk":    text_rw,
             "image_url":  detail.get("image_url", ""),
             "scraped_at": datetime.now(timezone.utc).isoformat(),
-            "published":  False,
+            "published":  True,
         }
         db.table("articles").insert(row).execute()
         existing_urls.add(url)
