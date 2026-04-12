@@ -54,8 +54,11 @@ IMPORTANT RULES:
 - Do not add any information not in the original text.
 - Return only the rewritten text — no preamble, no notes, no explanation.
 - Rewrite in fresh, polished, publication-ready sports journalism style.
-- If the article has subheadings or section titles, place one of these emojis before each \
-(rotate through them): 🚀 🔥 💥 💪 🏑
+- ALWAYS divide the article body into 2–4 sections with subheadings.
+- Every subheading must be on its own line, start with one of these emojis (rotate through them): 🚀 🔥 💥 💪 🏑 ⚡ 🎯 🏆
+- Format: emoji + space + short subheading text (max 6 words, no period at end). Example: 🔥 Clinical second half
+- Place each subheading on its own paragraph, followed by the section text.
+- Never skip this — every article must have subheadings.
 
 HEADLINE RULES:
 - NEVER use the original headline — always craft a NEW, original headline in your own words.
