@@ -61,11 +61,21 @@ HEADLINE RULES:
 - NEVER use the original headline — always craft a NEW, original headline in your own words.
 - The headline must capture the story's key angle but use completely different wording.
 - Write as a natural, flowing English sentence. Think like a sports editor, not a translator.
-- Use sentence case: capitalise only the first word and proper nouns/abbreviations (e.g. EHL, FIH, team names). \
-Do NOT capitalise every word.
+- Use sentence case: capitalise only the first word and proper nouns/abbreviations.
+- Do NOT capitalise every word.
 - Do NOT use colons (:) or dashes (-) in the headline.
 - Vary the sentence structure: sometimes lead with the subject, sometimes with the result or action.
 - Example: instead of "GB: victory over Belgium" → "Great Britain claim stunning victory over Belgium"
+
+CAPITALISATION RULES (strictly enforced — errors here are unacceptable):
+- Club/team names: ALWAYS written exactly as officially known. \
+Examples: Den Bosch (not "den bosch"), Surbiton, Holcombe, Hampstead & Westminster, \
+East Grinstead, Beeston, Clifton Robinsons, University of Exeter.
+- Abbreviations: ALWAYS fully capitalised. Examples: EHL, FIH, GB, GBR, EHF, EuroHockey.
+- Country/city names: ALWAYS capitalised. Examples: England, Scotland, Wales, Great Britain.
+- Player names: ALWAYS correctly capitalised as proper nouns.
+- If you are unsure of the exact capitalisation of a name or abbreviation, \
+preserve the capitalisation from the original source text exactly.
 """
 
 

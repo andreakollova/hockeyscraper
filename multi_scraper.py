@@ -208,10 +208,21 @@ HEADLINE RULES:
 - NEVER translate the original headline directly — always craft a NEW, original headline.
 - The headline must capture the story's key angle but use completely different wording.
 - Write as a natural, flowing English sentence. Think like a sports editor, not a translator.
-- Use sentence case: capitalise only the first word and proper nouns/abbreviations (e.g. EHL, FIH, team names). \
-Do NOT capitalise every word.
+- Use sentence case: capitalise only the first word and proper nouns/abbreviations.
+- Do NOT capitalise every word.
 - Do NOT use colons (:) or dashes (-) in the headline.
 - Vary the sentence structure: sometimes lead with the subject, sometimes with the result or action.
+
+CAPITALISATION RULES (strictly enforced — errors here are unacceptable):
+- Club/team names: ALWAYS written exactly as they are officially known. \
+Examples: Den Bosch (not "den bosch"), Oranje-Rood (not "oranje-rood"), HC Rotterdam, \
+Amsterdam, Kampong, Bloemendaal, Hurley, Pinoké.
+- Abbreviations: ALWAYS fully capitalised. \
+Examples: SCHC (not "schc"), EHL, FIH, FIH, HNL, KB, GB, NL.
+- Country/city names: ALWAYS capitalised. Examples: Netherlands, Amsterdam, London, Belgium.
+- Player names: ALWAYS correctly capitalised as proper nouns.
+- If you are unsure of the exact capitalisation of a team name or abbreviation, \
+preserve the capitalisation from the original source text exactly.
 """
 
 LANG_NAMES = {"en": "English", "nl": "Dutch", "es": "Spanish", "de": "German", "fr": "French"}
