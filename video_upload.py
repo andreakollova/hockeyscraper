@@ -1,5 +1,5 @@
 """
-Shared utility: download a YouTube video via yt-dlp and upload to catbox.moe.
+Shared utility: download a YouTube video via yt-dlp and upload to gofile.io (fallback: catbox.moe).
 Runs in GitHub Actions — plenty of RAM, no IP blocks.
 Returns the public download URL or None on failure.
 """
@@ -12,14 +12,42 @@ from pathlib import Path
 import requests
 
 
-def _upload_catbox(file_path: str) -> str | None:
-    print(f"    Uploading to catbox.moe ({os.path.getsize(file_path) / 1024 / 1024:.0f} MB)…")
+def _upload_gofile(file_path: str) -> str | None:
+    size_mb = os.path.getsize(file_path) / 1024 / 1024
+    print(f"    Uploading to gofile.io ({size_mb:.0f} MB)…")
     try:
+        # Get best server
+        srv = requests.get("https://api.gofile.io/servers", timeout=15).json()
+        server = srv["data"]["servers"][0]["name"]
+
+        with open(file_path, "rb") as f:
+            resp = requests.post(
+                f"https://{server}.gofile.io/contents/uploadfile",
+                files={"file": (os.path.basename(file_path), f, "video/mp4")},
+                timeout=600,
+            )
+        resp.raise_for_status()
+        data = resp.json()
+        if data.get("status") == "ok":
+            url = data["data"]["downloadPage"]
+            print(f"    gofile.io OK: {url}")
+            return url
+        print(f"    gofile.io unexpected: {data}")
+    except Exception as e:
+        print(f"    gofile.io failed: {e}")
+    return None
+
+
+def _upload_catbox(file_path: str) -> str | None:
+    size_mb = os.path.getsize(file_path) / 1024 / 1024
+    print(f"    Uploading to catbox.moe ({size_mb:.0f} MB)…")
+    try:
+        fname = Path(file_path).name
         with open(file_path, "rb") as f:
             resp = requests.post(
                 "https://catbox.moe/user/api.php",
                 data={"reqtype": "fileupload"},
-                files={"fileToUpload": (os.path.basename(file_path), f, "video/mp4")},
+                files={"fileToUpload": (fname, f)},
                 timeout=600,
             )
         resp.raise_for_status()
@@ -27,47 +55,46 @@ def _upload_catbox(file_path: str) -> str | None:
         if url.startswith("https://"):
             print(f"    catbox OK: {url}")
             return url
-        print(f"    catbox unexpected response: {url[:120]}")
+        print(f"    catbox unexpected: {url[:120]}")
     except Exception as e:
-        print(f"    catbox upload failed: {e}")
+        print(f"    catbox failed: {e}")
     return None
 
 
 def download_and_upload(yt_url: str) -> str | None:
-    """Download video from YouTube and upload to catbox.moe.
-    Returns public download URL or None if anything fails.
+    """Download video from YouTube, upload to gofile.io (fallback: catbox.moe).
+    Returns public download URL or None if everything fails.
     """
     try:
         import yt_dlp  # type: ignore
     except ImportError:
-        print("    [warn] yt-dlp not installed — skipping download")
+        print("    [warn] yt-dlp not installed")
         return None
 
     tmp_dir = tempfile.mkdtemp(prefix="hockey_video_")
     try:
         ydl_opts = {
-            # Prefer pre-merged mp4 (no ffmpeg needed); max 720p to keep file size sane
             "format": "22/18/best[height<=720][ext=mp4]/best[ext=mp4]/best",
             "outtmpl": os.path.join(tmp_dir, "%(id)s.%(ext)s"),
             "noplaylist": True,
             "quiet": True,
             "no_warnings": True,
         }
-        print(f"    Downloading via yt-dlp: {yt_url}")
+        print(f"    Downloading: {yt_url}")
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.extract_info(yt_url, download=True)
 
-        # Find the downloaded file
         files = sorted(
             [f for f in Path(tmp_dir).iterdir() if f.is_file()],
             key=lambda f: f.stat().st_size,
             reverse=True,
         )
         if not files:
-            print("    [warn] yt-dlp produced no output file")
+            print("    [warn] no output file")
             return None
 
-        return _upload_catbox(str(files[0]))
+        file_path = str(files[0])
+        return _upload_gofile(file_path) or _upload_catbox(file_path)
 
     except Exception as e:
         print(f"    [warn] download_and_upload failed: {e}")
