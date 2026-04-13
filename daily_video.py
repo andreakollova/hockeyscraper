@@ -31,6 +31,19 @@ def main():
 
     db = create_client(url, key)
 
+    # Guard: skip if a video is already downloaded and waiting to be sent
+    pending = (
+        db.table("videos")
+        .select("id")
+        .not_.is_("download_url", "null")
+        .neq("discord_sent", True)
+        .limit(1)
+        .execute()
+    )
+    if pending.data:
+        print("A video is already queued with a download_url — skipping to avoid double download.")
+        return
+
     # Pick oldest video that has no download_url yet and hasn't been sent to Discord
     result = (
         db.table("videos")
