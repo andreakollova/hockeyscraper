@@ -2,7 +2,7 @@ name: Hockey Scraper
 
 on:
   schedule:
-    - cron: "0 9,15,19 * * *"    # 09:00, 15:00, 19:00 UTC
+    - cron: "0 7,13,17 * * *"    # 09:00, 15:00, 19:00 GMT+2 (= 07:00, 13:00, 17:00 UTC)
   workflow_dispatch:               # allow manual trigger from GitHub UI
 
 jobs:

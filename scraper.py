@@ -113,10 +113,10 @@ def translate_title(title: str) -> str:
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
-            max_tokens=200,
+            max_tokens=120,
             messages=[
-                {"role": "system", "content": TRANSLATE_SYSTEM},
-                {"role": "user", "content": f"Translate this title to English (title only, no comments):\n{title}"},
+                {"role": "system", "content": "You are a sports journalist. Translate the following field hockey video title to natural English. Output only the translated title, nothing else."},
+                {"role": "user", "content": title},
             ],
         )
         return response.choices[0].message.content.strip()
@@ -315,6 +315,8 @@ def scrape_videos(db: Client, html: str) -> int:
     videos = scrape_videos_from_homepage(html)
     print(f"  Nájdených {len(videos)} videí na homepage")
 
+    from video_upload import download_and_upload
+
     new_count = 0
     for v in videos:
         if v["youtube_id"] in existing_ids:
@@ -323,6 +325,7 @@ def scrape_videos(db: Client, html: str) -> int:
 
         print(f"    [new]   [{v['category']}] {v['title'][:60]}")
         title_sk = translate_title(v["title"])
+        download_url = download_and_upload(v["youtube_url"])
 
         row = {
             "youtube_id":    v["youtube_id"],
@@ -333,6 +336,7 @@ def scrape_videos(db: Client, html: str) -> int:
             "category":      v["category"],
             "published_at":  datetime.now(timezone.utc).isoformat(),
             "scraped_at":    datetime.now(timezone.utc).isoformat(),
+            "download_url":  download_url,
         }
         insert_video(db, row)
         existing_ids.add(v["youtube_id"])

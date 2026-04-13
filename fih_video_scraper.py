@@ -121,6 +121,8 @@ def main():
     videos = scrape_fih_videos(r.text)
     print(f"  Found {len(videos)} video(s) on page")
 
+    from video_upload import download_and_upload
+
     new_count = 0
     for v in videos:
         if v["youtube_id"] in existing_ids:
@@ -128,6 +130,8 @@ def main():
             continue
 
         print(f"  [new]   {v['title'][:60]}")
+        download_url = download_and_upload(v["youtube_url"])
+
         row = {
             "youtube_id":    v["youtube_id"],
             "title":         v["title"],
@@ -137,6 +141,7 @@ def main():
             "category":      v["category"],
             "published_at":  datetime.now(timezone.utc).isoformat(),
             "scraped_at":    datetime.now(timezone.utc).isoformat(),
+            "download_url":  download_url,
         }
         db.table("videos").insert(row).execute()
         existing_ids.add(v["youtube_id"])
