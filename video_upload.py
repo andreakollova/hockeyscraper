@@ -74,7 +74,9 @@ def download_and_upload(yt_url: str) -> str | None:
     tmp_dir = tempfile.mkdtemp(prefix="hockey_video_")
     try:
         ydl_opts = {
-            "format": "22/18/best[height<=720][ext=mp4]/best[ext=mp4]/best",
+            # Best video + best audio merged — requires ffmpeg (available in GitHub Actions)
+            "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best",
+            "merge_output_format": "mp4",
             "outtmpl": os.path.join(tmp_dir, "%(id)s.%(ext)s"),
             "noplaylist": True,
             "quiet": True,
