@@ -200,8 +200,12 @@ IMPORTANT RULES:
 - Do not add any information not in the original text.
 - Return ONLY the rewritten text — no preamble, no notes, no explanation.
 - Rewrite in fresh, polished, publication-ready English sports journalism style.
-- If the article has subheadings or section titles, place one of these emojis before each \
-(rotate through them): 🚀 🔥 💥 💪 🏑
+- ALWAYS divide the article body into 2–4 sections with subheadings.
+- Every subheading must be on its own line, start with one of these emojis (rotate through them): \
+🚀 🔥 💥 💪 🏑 ⚡ 🎯 🏆
+- Format: emoji + space + short subheading text (max 6 words, no period at end). Example: 🔥 Clinical second half
+- Place each subheading on its own paragraph, followed by the section text.
+- Never skip this — every article must have subheadings.
 - For non-English sources, translate fully and naturally to English first, then apply the style.
 
 HEADLINE RULES:
@@ -213,16 +217,22 @@ HEADLINE RULES:
 - Do NOT use colons (:) or dashes (-) in the headline.
 - Vary the sentence structure: sometimes lead with the subject, sometimes with the result or action.
 
-CAPITALISATION RULES (strictly enforced — errors here are unacceptable):
-- Club/team names: ALWAYS written exactly as they are officially known. \
-Examples: Den Bosch (not "den bosch"), Oranje-Rood (not "oranje-rood"), HC Rotterdam, \
-Amsterdam, Kampong, Bloemendaal, Hurley, Pinoké.
-- Abbreviations: ALWAYS fully capitalised. \
-Examples: SCHC (not "schc"), EHL, FIH, FIH, HNL, KB, GB, NL.
-- Country/city names: ALWAYS capitalised. Examples: Netherlands, Amsterdam, London, Belgium.
+CAPITALISATION RULES (strictly enforced — a single lowercase club name or abbreviation is a critical error):
+- Club/team names: ALWAYS written exactly as they are officially known — NEVER in all-lowercase.
+  Dutch clubs: Den Bosch (NEVER "den bosch"), Oranje-Rood (NEVER "oranje-rood"), HC Rotterdam, \
+Amsterdam, Kampong, Bloemendaal, Hurley, Pinoké, SCHC, Tilburg, HGC, Klein Zwitserland, \
+HDM, Cartouche, Laren, Dames, Heren.
+  Belgian clubs: Racing Club de Bruxelles, Léopold, Beerschot, Watducks, Royal Leopold Club.
+  Spanish clubs: Club de Campo, Junior FC, Atlètic Terrassa, Polo, Egara, CE Manresa.
+  German clubs: Rot-Weiss Köln, Uhlenhorst Mülheim, Club an der Alster, Düsseldorfer HC.
+  Argentine clubs: Club Atlético San Martín, Los Leones, Racing Club.
+  International: GB, Great Britain, England Hockey, Hockey Australia, Hockey India, FIH.
+- Abbreviations: ALWAYS fully capitalised — NEVER lowercase. \
+Examples: SCHC (not "schc"), EHL (not "ehl"), FIH, HNL, KB, GB, NL, HC, RC.
+- Country/city names: ALWAYS capitalised. Examples: Netherlands, Amsterdam, London, Belgium, Argentina.
 - Player names: ALWAYS correctly capitalised as proper nouns.
 - If you are unsure of the exact capitalisation of a team name or abbreviation, \
-preserve the capitalisation from the original source text exactly.
+preserve the capitalisation from the original source text exactly. When in doubt, capitalise.
 """
 
 LANG_NAMES = {"en": "English", "nl": "Dutch", "es": "Spanish", "de": "German", "fr": "French"}
@@ -606,7 +616,7 @@ def scrape_site(db: Client, site: dict, existing_urls: set) -> int:
             "text_sk":    text_rw,
             "image_url":  image_url,
             "scraped_at": datetime.now(timezone.utc).isoformat(),
-            "published":  True,
+            "published":  False,
         }
         try:
             db.table("articles").insert(row).execute()

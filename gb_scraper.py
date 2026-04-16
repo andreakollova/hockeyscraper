@@ -70,15 +70,22 @@ HEADLINE RULES:
 - Vary the sentence structure: sometimes lead with the subject, sometimes with the result or action.
 - Example: instead of "GB: victory over Belgium" → "Great Britain claim stunning victory over Belgium"
 
-CAPITALISATION RULES (strictly enforced — errors here are unacceptable):
-- Club/team names: ALWAYS written exactly as officially known. \
-Examples: Den Bosch (not "den bosch"), Surbiton, Holcombe, Hampstead & Westminster, \
-East Grinstead, Beeston, Clifton Robinsons, University of Exeter.
-- Abbreviations: ALWAYS fully capitalised. Examples: EHL, FIH, GB, GBR, EHF, EuroHockey.
-- Country/city names: ALWAYS capitalised. Examples: England, Scotland, Wales, Great Britain.
+CAPITALISATION RULES (strictly enforced — a single lowercase club name or abbreviation is a critical error):
+- Club/team names: ALWAYS written exactly as officially known — NEVER in all-lowercase.
+  English clubs: Surbiton, Holcombe, Hampstead & Westminster, East Grinstead, Beeston, \
+Clifton Robinsons, University of Exeter, Loughborough Students, Brooklands MU, \
+Wimbledon, Canterbury, Bowdon, Reading, Leicester.
+  Scottish clubs: Clydesdale, Western Wildcats, Edinburgh University, Grove Menzieshill.
+  Welsh clubs: Swansea City, Cardiff & Met.
+  Irish clubs: Three Rock Rovers, Monkstown, UCD, Cork Harlequins.
+  International: GB, Great Britain, England Hockey, Hockey Wales, Scottish Hockey, \
+Hockey Ireland, EHL, EuroHockey, FIH, GBR.
+- Abbreviations: ALWAYS fully capitalised — NEVER lowercase. \
+Examples: EHL (not "ehl"), FIH (not "fih"), GB (not "gb"), GBR, EHF, HC.
+- Country/city names: ALWAYS capitalised. Examples: England, Scotland, Wales, Great Britain, Ireland.
 - Player names: ALWAYS correctly capitalised as proper nouns.
 - If you are unsure of the exact capitalisation of a name or abbreviation, \
-preserve the capitalisation from the original source text exactly.
+preserve the capitalisation from the original source text exactly. When in doubt, capitalise.
 """
 
 
@@ -291,7 +298,7 @@ def main():
             "text_sk":    text_rw,
             "image_url":  detail.get("image_url", ""),
             "scraped_at": datetime.now(timezone.utc).isoformat(),
-            "published":  True,
+            "published":  False,
         }
         db.table("articles").insert(row).execute()
         existing_urls.add(url)
