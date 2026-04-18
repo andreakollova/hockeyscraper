@@ -1,9 +1,7 @@
 name: Daily Video
 
 on:
-  schedule:
-    - cron: "0 8 * * *"    # 10:00 GMT+2 (= 08:00 UTC) — after morning scrape
-  workflow_dispatch:
+  workflow_dispatch:  # manual only — download link no longer needed
 
 jobs:
   process:
