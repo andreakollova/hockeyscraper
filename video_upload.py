@@ -74,13 +74,16 @@ def download_and_upload(yt_url: str) -> str | None:
     tmp_dir = tempfile.mkdtemp(prefix="hockey_video_")
     try:
         ydl_opts = {
-            # Best video + best audio merged — requires ffmpeg (available in GitHub Actions)
-            "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best",
+            # Highest quality: prefer 1080p+, merge best video+audio
+            "format": "bestvideo[height>=1080]+bestaudio/bestvideo+bestaudio/best",
+            "format_sort": ["res:1080", "vcodec:h264", "acodec:aac"],
             "merge_output_format": "mp4",
             "outtmpl": os.path.join(tmp_dir, "%(id)s.%(ext)s"),
             "noplaylist": True,
-            "quiet": True,
-            "no_warnings": True,
+            "quiet": False,
+            "no_warnings": False,
+            # Android player client bypasses YouTube throttling on server IPs
+            "extractor_args": {"youtube": {"player_client": ["android"]}},
         }
         print(f"    Downloading: {yt_url}")
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:

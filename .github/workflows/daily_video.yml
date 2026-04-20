@@ -1,7 +1,9 @@
 name: Daily Video
 
 on:
-  workflow_dispatch:  # manual only — download link no longer needed
+  schedule:
+    - cron: "0 8 * * *"   # 10:00 GMT+2 daily
+  workflow_dispatch:
 
 jobs:
   process:
