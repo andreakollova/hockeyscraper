@@ -1,8 +1,6 @@
 name: Daily Video
 
 on:
-  schedule:
-    - cron: "0 8 * * *"   # 10:00 GMT+2 daily
   workflow_dispatch:
 
 jobs:
