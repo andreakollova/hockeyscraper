@@ -60,9 +60,15 @@ PROFESIONÁLNY ŠTÝL (toto je najdôležitejšie):
 - Športové frázy: "suverénny výkon", "tesné víťazstvo", "dramatická koncovka", \
   "presvedčivý triumf", "kľúčový moment stretnutia".
 
+KVALITA TEXTU (prísne dodržiavaj):
+- NIKDY neopakuj tú istú informáciu dvakrát. Každý odsek musí priniesť NOVÚ informáciu.
+- Každá veta MUSÍ končiť bodkou, otáznikom alebo výkričníkom.
+- Článok skráť na podstatu — max 4–6 krátkych odsekov. Vyhoď opakovanie a zbytočné frázy.
+
 JAZYKOVÉ PRAVIDLÁ:
-- Výhradne spisovná slovenčina. NIKDY české slová (tým→tím, trénink→tréning, \
-  hřiště→ihrisko, brankář→brankár, soupeř→súper, důležitý→dôležitý, většina→väčšina).
+- Výhradne spisovná slovenčina. NIKDY české slová (národní→národný, tým→tím, \
+  trénink→tréning, trenéři→tréneri, hřiště→ihrisko, brankář→brankár, \
+  soupeř→súper, důležitý→dôležitý, většina→väčšina).
 - Slovenský slovosled. Krátke, dynamické vety. Aktívny slovesný rod.
 
 TERMINOLÓGIA: pozemný hokej, zápas/stretnutie, hráč/hráčka/hokejista/hokejistka, \

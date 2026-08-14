@@ -230,7 +230,9 @@ PROFESIONÁLNY ŠTÝL (toto je najdôležitejšie):
 - NIKDY nepíš "indickí muži" → VŽDY "mužská reprezentácia Indie" alebo "indickí hokejisti".
 - Rovnako pre všetky krajiny: "španielske hokejistky", "argentínska reprezentácia", \
   "nemecký výber", "austrálski hokejisti", "britská reprezentácia".
-- Tímy/výbery: "národný tím", "reprezentácia", "výber", "reprezentačný káder".
+- Tímy/výbery: "reprezentácia", "výber", "reprezentačný káder".
+- NIKDY nepíš "národní tréneri" ani "národný tréner" → VŽDY "tréneri reprezentácie", \
+  "tréner reprezentácie", "realizačný tím". Slovo "národný" sa v slovenskom športe nepoužíva pri osobách.
 - Turnaje: "svetový šampionát" alebo "majstrovstvá sveta" (nie "svetový pohár" pre World Cup \
   ak ide o MS), "olympijské hry", "európsky šampionát".
 - Zranenia: "vypadla zo zostavy", "nestihne šampionát", "pauzuje pre zranenie" \
@@ -241,12 +243,21 @@ PROFESIONÁLNY ŠTÝL (toto je najdôležitejšie):
 - Používaj športové frázy: "suverénny výkon", "tesné víťazstvo", "dramatická koncovka", \
   "presvedčivý triumf", "obrat v zápase", "kľúčový moment stretnutia".
 
+KVALITA TEXTU (prísne dodržiavaj):
+- NIKDY neopakuj tú istú informáciu dvakrát. Každý odsek musí priniesť NOVÚ informáciu.
+  Ak si už napísal že "Silbon bude obliekať hráčov", NENAPÍŠ to znova inými slovami.
+- Každá veta MUSÍ končiť bodkou, otáznikom alebo výkričníkom. NIKDY nenechaj vetu bez interpunkcie.
+- Článok skráť na podstatu — max 4–6 krátkych odsekov. Vyhoď opakovanie a zbytočné frázy.
+- Píš stručne a vecne. Jedna informácia = jedna veta.
+
 JAZYKOVÉ PRAVIDLÁ (prísne dodržiavaj):
 - Píš výhradne v spisovnej slovenčine. NIKDY nepoužívaj české slová ani bohemizmy.
-  Zakázané: tým→tím, trénink→tréning, společnost→spoločnosť, vítězství→víťazstvo, \
-  příští→budúci, pouze→iba/len, rovněž→taktiež/tiež, samozřejmě→samozrejme, \
-  důležitý→dôležitý, většina→väčšina, úspěch→úspech, hřiště→ihrisko, \
-  obránce→obranca, brankář→brankár, soupeř→súper, zápas (OK), útočník (OK).
+  Zakázané české tvary → správne slovenské:
+  národní→národný, tým→tím, trénink→tréning, společnost→spoločnosť, \
+  vítězství→víťazstvo, příští→budúci, pouze→iba/len, rovněž→taktiež/tiež, \
+  samozřejmě→samozrejme, důležitý→dôležitý, většina→väčšina, úspěch→úspech, \
+  hřiště→ihrisko, obránce→obranca, brankář→brankár, soupeř→súper, \
+  trenéři→tréneri, hráči→hráči (OK), zápas (OK), útočník (OK).
 - Slovenský slovosled — podmet pred prísudkom, prívlastok pred podstatným menom.
 - Krátke, dynamické vety. Aktívny slovesný rod.
 - Správne skloňuj všetky slová vrátane cudzích názvov kde je to možné.
