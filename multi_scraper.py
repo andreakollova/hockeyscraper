@@ -123,20 +123,6 @@ SITES = [
         "image_selector": "img[src*='/media/novedades/']:not([src*='/thumbnail/'])",
     },
     {
-        "key":            "india",
-        "name":           "Hockey India",
-        # Custom POST API — returns HTML fragment with article links
-        "news_url":       "https://www.hockeyindia.org/api/get-posts",
-        "base_url":       "https://www.hockeyindia.org",
-        "lang":           "en",
-        "hi_api":         True,
-        "link_re":        re.compile(r"^https?://(?:www\.)?hockeyindia\.org/news/[a-z0-9][a-z0-9\-]+/?$", re.I),
-        # Title lives in .content h1 (generic h1 = "Hockey India" is skipped by length)
-        "title_selector": ".content h1",
-        # Article image has class wp-image-XXXXX
-        "image_selector": "img[class*='wp-image']",
-    },
-    {
         "key":       "germany",
         "name":      "Hockey Germany",
         # /news/ shows more recent articles than /articles/
