@@ -17,40 +17,59 @@ from openai import OpenAI
 from supabase import create_client
 
 TRANSLATE_SYSTEM = """\
-Si skúsený slovenský športový novinár a prekladateľ. Prekladáš správy o pozemnom hokeji z holandčiny do slovenčiny.
+Si skúsený slovenský športový novinár špecializujúci sa na pozemný hokej. \
+Tvoja úloha je preložiť články do kvalitnej, prirodzenej slovenčiny — \
+nie doslovne prekladať, ale písať ako rodený Slovák.
 
-Jazykové požiadavky:
-- Píš spisovnou slovenčinou, používaj správne gramatické tvary a skloňovanie
-- Používaj prirodzené slovenské športové výrazy (nie doslovy z holandčiny)
-- Vety formuluj ako slovenský novinár — dynamicky, stručne, zrozumiteľne
-- Správne skloňuj: "pozemného hokeja", "v pozemnom hokeji", "hráč pozemného hokeja"
+JAZYKOVÉ PRAVIDLÁ (prísne dodržiavaj):
+- Píš výhradne v spisovnej slovenčine. NIKDY nepoužívaj české slová ani bohemizmy.
+  Zakázané: tým (správne: tím), trénink (správne: tréning), \
+  společnost (správne: spoločnosť), vítězství (správne: víťazstvo), \
+  příští (správne: budúci), potřeba (správne: potreba), \
+  pouze (správne: iba/len), rovněž (správne: taktiež/tiež), \
+  samozřejmě (správne: samozrejme), důležitý (správne: dôležitý), \
+  většina (správne: väčšina), úspěch (správne: úspech), \
+  hřiště (správne: ihrisko), obránce (správne: obranca), \
+  brankář (správne: brankár), soupeř (správne: súper).
+- Slovenský slovosled — podmet pred prísudkom, prívlastok pred podstatným menom.
+- Krátke, dynamické vety. Jedna myšlienka na vetu. Aktívny slovesný rod.
+- Článok musí znieť, akoby ho napísal slovenský novinár — nie ako preklad.
 
-Terminológia — vždy nahraď:
-- hockey / veldhockey → pozemný hokej
-- hockeyclub / club → klub pozemného hokeja (alebo len "klub")
-- hockeyster / speelster → hráčka pozemného hokeja
-- hockeyspeler → hráč pozemného hokeja
-- hockeywedstrijd → zápas pozemného hokeja
-- hockeyseizoen → sezóna pozemného hokeja
-- hoofdklasse → najvyššia liga
-- promotieklasse → druhá liga
-- goud / gouden → zlatý/á
-- zilver / zilveren → strieborný/á
-- finale → finále
-- halve finale → semifinále
-- trainer / coach → tréner
+TERMINOLÓGIA POZEMNÉHO HOKEJA:
+- field hockey / hockey → pozemný hokej
+- match / game → zápas
+- player → hráč / hráčka (podľa pohlavia)
+- coach / trainer → tréner / trénerka
+- pitch / field → ihrisko
+- goal → gól
+- goalkeeper → brankár / brankárka
+- penalty corner → trestný roh
+- shootout → samostatné nájazdy
+- half-time → polčas
+
+ŠTRUKTÚRA:
+- Rozdeľ telo článku na 2–4 sekcie, každú s krátkym podnadpisom.
+- Podnadpisy: na vlastnom riadku, začni jedným z emoji (striedaj): 🚀 🔥 💥 💪 🏑 ⚡ 🎯 🏆
+- Formát: emoji + medzera + krátky podnadpis (max 6 slov, bez bodky).
+- Krátke odseky — max 2–3 vety na odsek.
+
+PRAVIDLÁ PRE NADPIS:
+- NIKDY nekopíruj pôvodný nadpis — vždy vytvor NOVÝ, originálny nadpis.
+- Prirodzená slovenská veta. Nepoužívaj dvojbodky (:) ani pomlčky (-).
 
 Zachovaj:
 - Mená hráčov, trénerov a rozhodcov v originálnom pravopise
-- Názvy klubov v originálnom pravopise (napr. Bloemendaal, Kampong, Den Bosch)
+- Názvy klubov v originálnom pravopise
 - Všetky čísla, výsledky, štatistiky a dátumy presne
+- Skratky veľkými písmenami (EHL, FIH, GB, HC)
 
 Výstup: iba preložený text, bez poznámok ani vysvetliviek.
 """
 
+
 def translate(title: str, text: str) -> tuple[str, str]:
     client = OpenAI()
-    prompt = f"""Prelož nasledujúci článok o pozemnom hokeji z holandčiny do slovenčiny.
+    prompt = f"""Prelož nasledujúci článok o pozemnom hokeji do kvalitnej slovenčiny.
 
 NADPIS:
 {title}
@@ -68,6 +87,7 @@ Odpovedz presne v tomto formáte:
     response = client.chat.completions.create(
         model="gpt-4o",
         max_tokens=4096,
+        temperature=0.4,
         messages=[
             {"role": "system", "content": TRANSLATE_SYSTEM},
             {"role": "user", "content": prompt},
@@ -88,12 +108,20 @@ Odpovedz presne v tomto formáte:
 
 
 def main():
+    import sys
     db = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_KEY"])
 
-    # Načítaj články bez prekladu
-    res = db.table("articles").select("id, title, text").is_("title_sk", "null").execute()
+    # Počet článkov na preklad (default 10, alebo z argumentu)
+    count = int(sys.argv[1]) if len(sys.argv) > 1 else 10
+
+    # Načítaj posledných N článkov (podľa scraped_at)
+    res = (db.table("articles")
+           .select("id, title, text")
+           .order("scraped_at", desc=True)
+           .limit(count)
+           .execute())
     articles = res.data
-    print(f"Článkov na preklad: {len(articles)}")
+    print(f"Prekladám posledných {len(articles)} článkov do slovenčiny")
 
     for i, article in enumerate(articles, 1):
         print(f"  [{i}/{len(articles)}] {article['title'][:60]}…")

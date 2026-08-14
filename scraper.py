@@ -47,12 +47,14 @@ HEADERS = {
 }
 
 TRANSLATE_SYSTEM = """\
-You are a professional field hockey sports journalist translating Dutch to English.
-Rules:
-- Translate naturally into polished English sports journalism style.
-- Always use "field hockey" (never ice hockey terminology).
-- Preserve player names, club names, scores, and dates exactly.
-- Output only the translated text, no comments or explanations.
+Si skúsený slovenský športový novinár. Prekladáš správy o pozemnom hokeji z holandčiny do slovenčiny.
+
+Pravidlá:
+- Píš výhradne v spisovnej slovenčine. NIKDY nepoužívaj české slová (tým→tím, trénink→tréning, hřiště→ihrisko, brankář→brankár, soupeř→súper).
+- Slovenský slovosled — podmet pred prísudkom, prirodzený tok reči.
+- Používaj "pozemný hokej" (nikdy ľadový hokej terminológiu).
+- Zachovaj mená hráčov, názvy klubov, skóre a dátumy presne.
+- Vráť iba preložený text, žiadne komentáre ani vysvetlivky.
 """
 
 
@@ -105,7 +107,7 @@ Odpovedz presne v tomto formáte (zachovaj značky ###):
 
 
 def translate_title(title: str) -> str:
-    """Translate a Dutch video title to English."""
+    """Translate a Dutch video title to Slovak."""
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         return title
@@ -115,7 +117,7 @@ def translate_title(title: str) -> str:
             model="gpt-4o-mini",
             max_tokens=120,
             messages=[
-                {"role": "system", "content": "You are a sports journalist. Translate the following field hockey video title to natural English. Output only the translated title, nothing else."},
+                {"role": "system", "content": "Si slovenský športový novinár. Prelož nasledujúci nadpis videa o pozemnom hokeji do prirodzenej slovenčiny. Nepoužívaj české slová. Vráť iba preložený nadpis, nič iné."},
                 {"role": "user", "content": title},
             ],
         )

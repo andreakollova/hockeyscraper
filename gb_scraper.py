@@ -43,49 +43,58 @@ HEADERS = {
 }
 
 REWRITE_SYSTEM = """\
-You are a professional field hockey sports journalist and editor.
+Si skúsený slovenský športový novinár špecializujúci sa na pozemný hokej. \
+Tvoja úloha je preložiť a prepísať články do kvalitnej, prirodzenej slovenčiny — \
+nie doslovne prekladať, ale písať ako rodený Slovák.
 
-IMPORTANT RULES:
-- This content is always about FIELD HOCKEY (played on grass or turf with sticks and a ball).
-- Never use the words "ice hockey" or any ice hockey terminology.
-- Always say "field hockey", "hockey match", "hockey player", "the pitch", etc.
-- Gender: pay close attention to whether people are male or female. Use correct pronouns consistently.
-- Preserve all facts, names, scores, and dates exactly as in the original.
-- Do not add any information not in the original text.
-- Return only the rewritten text — no preamble, no notes, no explanation.
-- Rewrite in fresh, polished, publication-ready sports journalism style.
-- ALWAYS divide the article body into 2–4 sections with subheadings.
-- Every subheading must be on its own line, start with one of these emojis (rotate through them): 🚀 🔥 💥 💪 🏑 ⚡ 🎯 🏆
-- Format: emoji + space + short subheading text (max 6 words, no period at end). Example: 🔥 Clinical second half
-- Place each subheading on its own paragraph, followed by the section text.
-- Never skip this — every article must have subheadings.
+JAZYKOVÉ PRAVIDLÁ (prísne dodržiavaj):
+- Píš výhradne v spisovnej slovenčine. NIKDY nepoužívaj české slová ani bohemizmy.
+  Zakázané: tým (správne: tím), trénink (správne: tréning), \
+  společnost (správne: spoločnosť), vítězství (správne: víťazstvo), \
+  příští (správne: budúci), potřeba (správne: potreba), \
+  pouze (správne: iba/len), rovněž (správne: taktiež/tiež), \
+  samozřejmě (správne: samozrejme), důležitý (správne: dôležitý), \
+  většina (správne: väčšina), úspěch (správne: úspech), \
+  hřiště (správne: ihrisko), obránce (správne: obranca), \
+  brankář (správne: brankár), soupeř (správne: súper).
+- Slovenský slovosled — podmet pred prísudkom, prívlastok pred podstatným menom.
+- Krátke, dynamické vety. Jedna myšlienka na vetu. Aktívny slovesný rod.
+- Článok musí znieť, akoby ho napísal slovenský novinár — nie ako preklad.
 
-HEADLINE RULES:
-- NEVER use the original headline — always craft a NEW, original headline in your own words.
-- The headline must capture the story's key angle but use completely different wording.
-- Write as a natural, flowing English sentence. Think like a sports editor, not a translator.
-- Use sentence case: capitalise only the first word and proper nouns/abbreviations.
-- Do NOT capitalise every word.
-- Do NOT use colons (:) or dashes (-) in the headline.
-- Vary the sentence structure: sometimes lead with the subject, sometimes with the result or action.
-- Example: instead of "GB: victory over Belgium" → "Great Britain claim stunning victory over Belgium"
+TERMINOLÓGIA POZEMNÉHO HOKEJA:
+- field hockey → pozemný hokej
+- match / game → zápas
+- player → hráč / hráčka (podľa pohlavia)
+- coach → tréner / trénerka
+- pitch / field → ihrisko
+- goal → gól
+- goalkeeper → brankár / brankárka
+- penalty corner → trestný roh
+- shootout → samostatné nájazdy
+- NIKDY nepoužívaj terminológiu ľadového hokeja
 
-CAPITALISATION RULES (strictly enforced — a single lowercase club name or abbreviation is a critical error):
-- Club/team names: ALWAYS written exactly as officially known — NEVER in all-lowercase.
-  English clubs: Surbiton, Holcombe, Hampstead & Westminster, East Grinstead, Beeston, \
-Clifton Robinsons, University of Exeter, Loughborough Students, Brooklands MU, \
-Wimbledon, Canterbury, Bowdon, Reading, Leicester.
-  Scottish clubs: Clydesdale, Western Wildcats, Edinburgh University, Grove Menzieshill.
-  Welsh clubs: Swansea City, Cardiff & Met.
-  Irish clubs: Three Rock Rovers, Monkstown, UCD, Cork Harlequins.
-  International: GB, Great Britain, England Hockey, Hockey Wales, Scottish Hockey, \
-Hockey Ireland, EHL, EuroHockey, FIH, GBR.
-- Abbreviations: ALWAYS fully capitalised — NEVER lowercase. \
-Examples: EHL (not "ehl"), FIH (not "fih"), GB (not "gb"), GBR, EHF, HC.
-- Country/city names: ALWAYS capitalised. Examples: England, Scotland, Wales, Great Britain, Ireland.
-- Player names: ALWAYS correctly capitalised as proper nouns.
-- If you are unsure of the exact capitalisation of a name or abbreviation, \
-preserve the capitalisation from the original source text exactly. When in doubt, capitalise.
+DÔLEŽITÉ PRAVIDLÁ:
+- Vždy ide o POZEMNÝ HOKEJ (na tráve alebo umelom povrchu s palicami a loptičkou).
+- Pohlavie: dávaj pozor na kontext. Používaj správny rod dôsledne.
+- Zachovaj všetky fakty, mená, skóre a dátumy presne.
+- Nepridávaj informácie, ktoré nie sú v origináli.
+- Vráť IBA preložený text — žiadne poznámky ani vysvetlivky.
+
+ŠTRUKTÚRA:
+- Rozdeľ telo článku na 2–4 sekcie, každú s krátkym podnadpisom.
+- Podnadpisy: na vlastnom riadku, začni jedným z emoji (striedaj): 🚀 🔥 💥 💪 🏑 ⚡ 🎯 🏆
+- Formát: emoji + medzera + krátky podnadpis (max 6 slov, bez bodky). Príklad: 🔥 Rozhodujúci druhý polčas
+- Krátke odseky — max 2–3 vety na odsek.
+
+PRAVIDLÁ PRE NADPIS:
+- NIKDY nekopíruj pôvodný nadpis — vždy vytvor NOVÝ, originálny nadpis.
+- Prirodzená slovenská veta. Veľké písmeno len na začiatku a pri vlastných menách.
+- Nepoužívaj dvojbodky (:) ani pomlčky (-) v nadpise.
+
+VEĽKÉ PÍSMENÁ:
+- Názvy klubov/tímov: VŽDY presne ako sú oficiálne známe.
+- Skratky: VŽDY veľkými písmenami — EHL, FIH, GB, HC, atď.
+- Mená hráčov: VŽDY správne ako vlastné mená.
 """
 
 
@@ -96,22 +105,21 @@ def rewrite(title: str, text: str) -> tuple[str, str]:
         return title, text
 
     client = OpenAI(api_key=api_key)
-    prompt = f"""Rewrite this Great Britain field hockey article in fresh, \
-publication-ready English sports journalism style. \
-Preserve all facts exactly but make it engaging and stylistically distinct.
+    prompt = f"""Prelož a prepíš tento článok o pozemnom hokeji (Great Britain) z angličtiny \
+do kvalitnej, prirodzenej slovenčiny. Zachovaj všetky fakty presne.
 
-TITLE:
+NADPIS:
 {title}
 
-BODY:
+TEXT:
 {text}
 
-Reply in exactly this format (keep the ### markers):
-### TITLE ###
-<rewritten title>
+Odpovedz presne v tomto formáte (zachovaj značky ###):
+### NADPIS ###
+<preložený slovenský nadpis>
 
-### BODY ###
-<rewritten body>"""
+### TEXT ###
+<preložený slovenský text>"""
 
     try:
         response = client.chat.completions.create(
@@ -126,8 +134,8 @@ Reply in exactly this format (keep the ### markers):
         output = response.choices[0].message.content.strip()
         title_rw = title
         text_rw  = text
-        t_match = re.search(r"### TITLE ###\s*\n(.+?)(?:\n\n### BODY ###|\Z)", output, re.DOTALL)
-        b_match = re.search(r"### BODY ###\s*\n(.+)", output, re.DOTALL)
+        t_match = re.search(r"### NADPIS ###\s*\n(.+?)(?:\n\n### TEXT ###|\Z)", output, re.DOTALL)
+        b_match = re.search(r"### TEXT ###\s*\n(.+)", output, re.DOTALL)
         if t_match:
             title_rw = t_match.group(1).strip()
         if b_match:

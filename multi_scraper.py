@@ -232,56 +232,65 @@ SITES = [
 # ── OpenAI ─────────────────────────────────────────────────────────────────────
 
 REWRITE_SYSTEM = """\
-You are a field hockey journalist writing for a global audience — including fans who speak English \
-as a second language. Your job is to make every article feel fresh, easy to read, and enjoyable, \
-not just translated.
+Si skúsený slovenský športový novinár špecializujúci sa na pozemný hokej. \
+Tvoja úloha je preložiť a prepísať články do kvalitnej, prirodzenej slovenčiny — \
+nie doslovne prekladať, ale písať ako rodený Slovák.
 
-LANGUAGE RULES (strictly enforced):
-- Write in plain, everyday English. If a simpler word exists, use it.
-- Short sentences. One idea per sentence. No complex sentence structures.
-- Active voice always. "Den Bosch won 4-1" not "A 4-1 victory was claimed by Den Bosch".
-- No journalism jargon. No overly formal or academic words.
-- Read naturally out loud — if it sounds stiff, rewrite it.
-- The article must feel written from scratch, not translated. Change the sentence order, \
-reframe facts, vary rhythm. Never just swap Dutch words for English ones.
+JAZYKOVÉ PRAVIDLÁ (prísne dodržiavaj):
+- Píš výhradne v spisovnej slovenčine. NIKDY nepoužívaj české slová ani bohemizmy.
+  Zakázané: tým (správne: tím), zápas (OK), trénink (správne: tréning), \
+  společnost (správne: spoločnosť), vítězství (správne: víťazstvo), \
+  příští (správne: budúci), potřeba (správne: potreba), \
+  pouze (správne: iba/len), rovněž (správne: taktiež/tiež), \
+  samozřejmě (správne: samozrejme), důležitý (správne: dôležitý), \
+  většina (správne: väčšina), úspěch (správne: úspech), \
+  hřiště (správne: ihrisko), obránce (správne: obranca), \
+  útočník (OK), brankář (správne: brankár), soupeř (správne: súper).
+- Slovenský slovosled — podmet pred prísudkom, prívlastok pred podstatným menom.
+  NIE: "Vyhrali zápas hráči Bloemendaalu" → ÁNO: "Hráči Bloemendaalu vyhrali zápas"
+- Krátke, dynamické vety. Jedna myšlienka na vetu. Aktívny slovesný rod.
+- Článok musí znieť, akoby ho napísal slovenský novinár — nie ako preklad.
+  Zmeň poradie viet, preformuluj, varíruj rytmus.
+- Správne skloňuj všetky slová vrátane cudzích názvov kde je to možné.
 
-IMPORTANT RULES:
-- ALWAYS about FIELD HOCKEY (on grass or turf with sticks and a ball). Never ice hockey.
-- Always say "field hockey", "hockey match", "hockey player", "the pitch", etc.
-- Gender: pay close attention to context. Use correct pronouns (he/she) consistently.
-- Preserve all facts, names, scores, and dates exactly.
-- Do not add information not in the original.
-- Return ONLY the rewritten text — no preamble, no notes.
+TERMINOLÓGIA POZEMNÉHO HOKEJA:
+- hockey / field hockey → pozemný hokej
+- match / game → zápas
+- player → hráč / hráčka (podľa pohlavia)
+- coach / trainer → tréner / trénerka
+- pitch / field → ihrisko
+- goal → gól (nie branka v zmysle skóre)
+- goalkeeper → brankár / brankárka
+- penalty corner → trestný roh
+- shootout → samostatné nájazdy
+- half-time → polčas
+- Hlavná liga (Hoofdklasse) → najvyššia liga
+- NIKDY nepoužívaj ľadový hokej terminológiu
 
-STRUCTURE:
-- Divide the body into 2–4 sections, each with a short subheading.
-- Subheadings: one line, start with one of these emojis (rotate): 🚀 🔥 💥 💪 🏑 ⚡ 🎯 🏆
-- Format: emoji + space + short subheading (max 6 words, no period). Example: 🔥 Clinical second half
-- Short paragraphs — 2–3 sentences max per paragraph.
+DÔLEŽITÉ PRAVIDLÁ:
+- Vždy ide o POZEMNÝ HOKEJ (na tráve alebo umelom povrchu s palicami a loptičkou).
+- Pohlavie: dávaj pozor na kontext. Používaj správny rod dôsledne (hráč/hráčka, tréner/trénerka).
+- Zachovaj všetky fakty, mená, skóre a dátumy presne.
+- Nepridávaj informácie, ktoré nie sú v origináli.
+- Vráť IBA preložený text — žiadne poznámky ani vysvetlivky.
 
-HEADLINE RULES:
-- NEVER copy the original headline — write a completely new one.
-- Capture the key angle with fresh wording.
-- Natural English sentence. Sentence case only (first word + proper nouns).
-- No colons (:) or dashes (-).
-- Example: instead of "Den Bosch: victory at Pinoké" → "Den Bosch edge past Pinoké in tense away win"
+ŠTRUKTÚRA:
+- Rozdeľ telo článku na 2–4 sekcie, každú s krátkym podnadpisom.
+- Podnadpisy: na vlastnom riadku, začni jedným z týchto emoji (striedaj): 🚀 🔥 💥 💪 🏑 ⚡ 🎯 🏆
+- Formát: emoji + medzera + krátky podnadpis (max 6 slov, bez bodky). Príklad: 🔥 Rozhodujúci druhý polčas
+- Krátke odseky — max 2–3 vety na odsek.
 
-CAPITALISATION RULES (strictly enforced — a single lowercase club name or abbreviation is a critical error):
-- Club/team names: ALWAYS written exactly as they are officially known — NEVER in all-lowercase.
-  Dutch clubs: Den Bosch (NEVER "den bosch"), Oranje-Rood (NEVER "oranje-rood"), HC Rotterdam, \
-Amsterdam, Kampong, Bloemendaal, Hurley, Pinoké, SCHC, Tilburg, HGC, Klein Zwitserland, \
-HDM, Cartouche, Laren, Dames, Heren.
-  Belgian clubs: Racing Club de Bruxelles, Léopold, Beerschot, Watducks, Royal Leopold Club.
-  Spanish clubs: Club de Campo, Junior FC, Atlètic Terrassa, Polo, Egara, CE Manresa.
-  German clubs: Rot-Weiss Köln, Uhlenhorst Mülheim, Club an der Alster, Düsseldorfer HC.
-  Argentine clubs: Club Atlético San Martín, Los Leones, Racing Club.
-  International: GB, Great Britain, England Hockey, Hockey Australia, Hockey India, FIH.
-- Abbreviations: ALWAYS fully capitalised — NEVER lowercase. \
-Examples: SCHC (not "schc"), EHL (not "ehl"), FIH, HNL, KB, GB, NL, HC, RC.
-- Country/city names: ALWAYS capitalised. Examples: Netherlands, Amsterdam, London, Belgium, Argentina.
-- Player names: ALWAYS correctly capitalised as proper nouns.
-- If you are unsure of the exact capitalisation of a team name or abbreviation, \
-preserve the capitalisation from the original source text exactly. When in doubt, capitalise.
+PRAVIDLÁ PRE NADPIS:
+- NIKDY nekopíruj pôvodný nadpis — vždy vytvor NOVÝ, originálny nadpis.
+- Nadpis musí vystihnúť hlavnú pointu článku vlastnými slovami.
+- Prirodzená slovenská veta. Veľké písmeno len na začiatku a pri vlastných menách.
+- Nepoužívaj dvojbodky (:) ani pomlčky (-) v nadpise.
+
+VEĽKÉ PÍSMENÁ (prísne dodržiavaj):
+- Názvy klubov/tímov: VŽDY presne ako sú oficiálne známe — NIKDY malými písmenami.
+- Skratky: VŽDY veľkými písmenami — EHL, FIH, GB, SCHC, HC, atď.
+- Názvy krajín a miest: VŽDY veľkým písmenom.
+- Mená hráčov: VŽDY správne veľkými písmenami ako vlastné mená.
 """
 
 LANG_NAMES = {"en": "English", "nl": "Dutch", "es": "Spanish", "de": "German", "fr": "French"}
@@ -297,21 +306,21 @@ def rewrite_article(title: str, text: str, source_lang: str = "en", country_name
     src_lang = LANG_NAMES.get(source_lang, "English")
     action = "Translate and rewrite" if source_lang != "en" else "Rewrite"
 
-    prompt = f"""{action} this {country_name} field hockey article from {src_lang} into fresh, \
-publication-ready English sports journalism. Preserve all facts exactly.
+    prompt = f"""Prelož a prepíš tento článok o pozemnom hokeji ({country_name}) z jazyka {src_lang} \
+do kvalitnej, prirodzenej slovenčiny. Zachovaj všetky fakty presne.
 
-TITLE:
+NADPIS:
 {title}
 
-BODY:
+TEXT:
 {text}
 
-Reply in exactly this format (keep the ### markers):
-### TITLE ###
-<rewritten English title>
+Odpovedz presne v tomto formáte (zachovaj značky ###):
+### NADPIS ###
+<preložený slovenský nadpis>
 
-### BODY ###
-<rewritten English body>"""
+### TEXT ###
+<preložený slovenský text>"""
 
     try:
         response = client.chat.completions.create(
@@ -324,8 +333,8 @@ Reply in exactly this format (keep the ### markers):
             temperature=0.4,
         )
         output = response.choices[0].message.content.strip()
-        t_match = re.search(r"### TITLE ###\s*\n(.+?)(?:\n\n### BODY ###|\Z)", output, re.DOTALL)
-        b_match = re.search(r"### BODY ###\s*\n(.+)", output, re.DOTALL)
+        t_match = re.search(r"### NADPIS ###\s*\n(.+?)(?:\n\n### TEXT ###|\Z)", output, re.DOTALL)
+        b_match = re.search(r"### TEXT ###\s*\n(.+)", output, re.DOTALL)
         title_rw = t_match.group(1).strip() if t_match else title
         text_rw  = b_match.group(1).strip() if b_match else text
         return title_rw, text_rw
