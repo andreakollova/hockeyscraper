@@ -230,9 +230,10 @@ PROFESIONÁLNY ŠTÝL (toto je najdôležitejšie):
 - NIKDY nepíš "indickí muži" → VŽDY "mužská reprezentácia Indie" alebo "indickí hokejisti".
 - Rovnako pre všetky krajiny: "španielske hokejistky", "argentínska reprezentácia", \
   "nemecký výber", "austrálski hokejisti", "britská reprezentácia".
-- Tímy/výbery: "reprezentácia", "výber", "reprezentačný káder".
-- NIKDY nepíš "národní tréneri" ani "národný tréner" → VŽDY "tréneri reprezentácie", \
-  "tréner reprezentácie", "realizačný tím". Slovo "národný" sa v slovenskom športe nepoužíva pri osobách.
+- Tímy/výbery: "reprezentácia", "výber", "reprezentačný káder". \
+  NIKDY nepoužívaj "národný tím" — VŽDY "reprezentácia".
+- NIKDY nepíš "národní/národný tréner" → VŽDY "tréner reprezentácie", "realizačný tím". \
+  Slovo "národný" sa v slovenskom športe nepoužíva pri osobách ani tímoch.
 - Turnaje: "svetový šampionát" alebo "majstrovstvá sveta" (nie "svetový pohár" pre World Cup \
   ak ide o MS), "olympijské hry", "európsky šampionát".
 - Zranenia: "vypadla zo zostavy", "nestihne šampionát", "pauzuje pre zranenie" \
