@@ -677,6 +677,8 @@ def scrape_site(db: Client, site: dict, existing_urls: set) -> int:
             "title_sk":   title_rw,
             "text_sk":    text_rw,
             "image_url":  image_url,
+            "source":     site["name"],
+            "source_lang": site["lang"],
             "scraped_at": datetime.now(timezone.utc).isoformat(),
             "published":  True,
         }
