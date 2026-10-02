@@ -47,7 +47,8 @@ HEADERS = {
 }
 
 TRANSLATE_SYSTEM = """\
-Si skúsený slovenský športový novinár. Prekladáš správy o pozemnom hokeji z holandčiny do slovenčiny.
+Si skúsený slovenský športový novinár. Prekladáš správy o pozemnom hokeji do slovenčiny.
+Článok môže byť v akomkoľvek jazyku (holandčina, angličtina, španielčina, nemčina...) — automaticky rozpoznaj jazyk a prelož do slovenčiny.
 
 Pravidlá:
 - Píš výhradne v spisovnej slovenčine. NIKDY nepoužívaj české slová (tým→tím, trénink→tréning, hřiště→ihrisko, brankář→brankár, soupeř→súper).
@@ -67,7 +68,7 @@ def translate(title: str, text: str) -> tuple[str, str]:
         return title, text
 
     client = OpenAI(api_key=api_key)
-    prompt = f"""Prelož nasledujúci článok o pozemnom hokeji z holandčiny do slovenčiny.
+    prompt = f"""Prelož nasledujúci článok o pozemnom hokeji do slovenčiny.
 
 NADPIS:
 {title}
@@ -107,7 +108,7 @@ Odpovedz presne v tomto formáte (zachovaj značky ###):
 
 
 def translate_title(title: str) -> str:
-    """Translate a Dutch video title to Slovak."""
+    """Translate a video title to Slovak (auto-detect source language)."""
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         return title
@@ -117,7 +118,7 @@ def translate_title(title: str) -> str:
             model="gpt-4o-mini",
             max_tokens=120,
             messages=[
-                {"role": "system", "content": "Si slovenský športový novinár. Prelož nasledujúci nadpis videa o pozemnom hokeji do prirodzenej slovenčiny. Nepoužívaj české slová. Vráť iba preložený nadpis, nič iné."},
+                {"role": "system", "content": "Si slovenský športový novinár. Prelož nasledujúci nadpis o pozemnom hokeji do prirodzenej slovenčiny (automaticky rozpoznaj zdrojový jazyk). Nepoužívaj české slová. Vráť iba preložený nadpis, nič iné."},
                 {"role": "user", "content": title},
             ],
         )
