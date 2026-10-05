@@ -349,7 +349,7 @@ def scrape_videos(db: Client, html: str) -> int:
                 "url":         article_url,
                 "title":       v["title"],
                 "text":        f"Video highlight zo zápasu {cat_label} (Hoofdklasse).",
-                "title_sk":    title_sk,
+                "title_sk":    f"VIDEO: {title_sk}",
                 "text_sk":     f"Video zostrih zo zápasu {cat_label} (Hoofdklasse).",
                 "image_url":   v["thumbnail_url"],
                 "source":      "Hockey Netherlands",
