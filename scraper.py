@@ -313,6 +313,7 @@ def _detect_category(tag) -> str:
 
 def scrape_videos(db: Client, html: str) -> int:
     existing_ids = load_existing_video_ids(db)
+    existing_urls = load_existing_urls(db)
     print(f"  Existujúce videá v DB: {len(existing_ids)}")
 
     videos = scrape_videos_from_homepage(html)
@@ -327,6 +328,7 @@ def scrape_videos(db: Client, html: str) -> int:
         print(f"    [new]   [{v['category']}] {v['title'][:60]}")
         title_sk = translate_title(v["title"])
 
+        # Save to videos table
         row = {
             "youtube_id":    v["youtube_id"],
             "title":         v["title"],
@@ -338,6 +340,31 @@ def scrape_videos(db: Client, html: str) -> int:
             "scraped_at":    datetime.now(timezone.utc).isoformat(),
         }
         insert_video(db, row)
+
+        # Also save to articles table as video article (for "novinky zo sveta")
+        article_url = v["youtube_url"]
+        if article_url not in existing_urls:
+            cat_label = "Holandská liga žien" if v["category"] == "dames" else "Holandská liga mužov"
+            article_row = {
+                "url":         article_url,
+                "title":       v["title"],
+                "text":        f"Video highlight zo zápasu {cat_label} (Hoofdklasse).",
+                "title_sk":    title_sk,
+                "text_sk":     f"Video zostrih zo zápasu {cat_label} (Hoofdklasse).",
+                "image_url":   v["thumbnail_url"],
+                "source":      "Hockey Netherlands",
+                "source_lang": "nl",
+                "scraped_at":  datetime.now(timezone.utc).isoformat(),
+                "published":   True,
+            }
+            try:
+                insert_article(db, article_row)
+                existing_urls.add(article_url)
+                print(f"    [article] Uložený aj ako článok")
+            except Exception as e:
+                if "duplicate" not in str(e).lower():
+                    print(f"    [warn] Article insert failed: {e}")
+
         existing_ids.add(v["youtube_id"])
         new_count += 1
         time.sleep(0.3)
