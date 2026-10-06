@@ -263,6 +263,11 @@ JAZYKOVÉ PRAVIDLÁ (prísne dodržiavaj):
 - Krátke, dynamické vety. Aktívny slovesný rod.
 - Správne skloňuj všetky slová vrátane cudzích názvov kde je to možné.
 
+LOKÁCIE A NÁZVY (prísne dodržiavaj):
+- Holandské lokácie prekladaj prirodzene — "Amsterdamse Bos" = "v Amsterdame" (NIE "v amsterdamskom lese").
+- "Wagener Stadion" = "vo Wagener Stadióne". Nikdy neprekladaj názvy miest/ihrísk doslovne.
+- Názvy štadiónov, ihrísk a miest zachovaj v pôvodnom tvare a len skloňuj podľa slovenčiny.
+
 TERMINOLÓGIA POZEMNÉHO HOKEJA:
 - hockey / field hockey → pozemný hokej
 - match / game → zápas / stretnutie
