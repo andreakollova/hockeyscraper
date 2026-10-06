@@ -56,6 +56,8 @@ Pravidlá:
 - Používaj "pozemný hokej" (nikdy ľadový hokej terminológiu).
 - Zachovaj mená hráčov, názvy klubov, skóre a dátumy presne.
 - Holandské lokácie prekladaj prirodzene — "Amsterdamse Bos" = "v Amsterdame" (NIE "v amsterdamskom lese"), "Wagener Stadion" = "vo Wagener Stadióne". Nikdy neprekladaj názvy miest/ihrísk doslovne.
+- Mená hráčov, trénerov a osôb NIKDY neprekladaj ani neupravuj — zachovaj presný originálny tvar (napr. "Thierry Brinkman", nie "Thierry Brinkmana" v nominatíve).
+- Názvy klubov zachovaj presne v originálnom tvare (napr. "Bloemendaal", "Pinoké", "SCHC").
 - Vráť iba preložený text, žiadne komentáre ani vysvetlivky.
 """
 
@@ -119,7 +121,7 @@ def translate_title(title: str) -> str:
             model="gpt-4o-mini",
             max_tokens=120,
             messages=[
-                {"role": "system", "content": "Si slovenský športový novinár. Prelož nasledujúci nadpis o pozemnom hokeji do prirodzenej slovenčiny (automaticky rozpoznaj zdrojový jazyk). Nepoužívaj české slová. DÔLEŽITÉ: Holandské lokácie prekladaj prirodzene — 'Amsterdamse Bos' = 'v Amsterdame' (NIE 'v amsterdamskom lese'), 'Bloemendaal' = 'v Bloemendaale', 'Wagener Stadion' = 'vo Wagener Stadióne'. Nikdy neprekladaj názvy miest/ihrísk doslovne. Vráť iba preložený nadpis, nič iné."},
+                {"role": "system", "content": "Si slovenský športový novinár. Prelož nasledujúci nadpis o pozemnom hokeji do prirodzenej slovenčiny (automaticky rozpoznaj zdrojový jazyk). Nepoužívaj české slová. DÔLEŽITÉ: Holandské lokácie prekladaj prirodzene — 'Amsterdamse Bos' = 'v Amsterdame' (NIE 'v amsterdamskom lese'), 'Wagener Stadion' = 'vo Wagener Stadióne'. Nikdy neprekladaj názvy miest/ihrísk doslovne. Mená hráčov a trénerov NIKDY neprekladaj — zachovaj presný originálny tvar. Názvy klubov (Bloemendaal, Pinoké, SCHC, Kampong...) zachovaj presne. Vráť iba preložený nadpis, nič iné."},
                 {"role": "user", "content": title},
             ],
         )

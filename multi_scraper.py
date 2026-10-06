@@ -297,6 +297,8 @@ PRAVIDLÁ PRE NADPIS:
 
 ĎALŠIE PRAVIDLÁ:
 - Zachovaj všetky fakty, mená, skóre a dátumy presne.
+- Mená hráčov, trénerov a osôb NIKDY neprekladaj ani neupravuj — zachovaj presný originálny tvar.
+- Názvy klubov zachovaj presne v originálnom tvare (napr. "Bloemendaal", "Pinoké", "SCHC", "Kampong").
 - Nepridávaj informácie, ktoré nie sú v origináli.
 - Vráť IBA preložený text — žiadne poznámky ani vysvetlivky.
 - Názvy klubov/tímov, skratky (EHL, FIH, GB, SCHC, HC) a mená VŽDY veľkými písmenami.
