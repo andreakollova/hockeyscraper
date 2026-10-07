@@ -245,11 +245,15 @@ PROFESIONÁLNY ŠTÝL (toto je najdôležitejšie):
   "presvedčivý triumf", "obrat v zápase", "kľúčový moment stretnutia".
 
 KVALITA TEXTU (prísne dodržiavaj):
+- Píš PRIRODZENE — ako keby si rozprával kamarátovi čo sa stalo v hokeji. \
+  Žiadne kŕčovité formulácie, žiadny "prekladateľský" jazyk.
 - NIKDY neopakuj tú istú informáciu dvakrát. Každý odsek musí priniesť NOVÚ informáciu.
-  Ak si už napísal že "Silbon bude obliekať hráčov", NENAPÍŠ to znova inými slovami.
-- Každá veta MUSÍ končiť bodkou, otáznikom alebo výkričníkom. NIKDY nenechaj vetu bez interpunkcie.
+- Každá veta MUSÍ končiť bodkou, otáznikom alebo výkričníkom.
 - Článok skráť na podstatu — max 4–6 krátkych odsekov. Vyhoď opakovanie a zbytočné frázy.
 - Píš stručne a vecne. Jedna informácia = jedna veta.
+- ZAKÁZANÉ sú frázy typu: "v rámci", "v kontexte", "s cieľom", "za účelom", \
+  "v súvislosti s", "prostredníctvom", "v nadväznosti na". \
+  Namiesto toho píš priamo: "na turnaji", "aby", "cez", "po".
 
 JAZYKOVÉ PRAVIDLÁ (prísne dodržiavaj):
 - Píš výhradne v spisovnej slovenčine. NIKDY nepoužívaj české slová ani bohemizmy.
@@ -290,10 +294,16 @@ TERMINOLÓGIA POZEMNÉHO HOKEJA:
 - Formát: emoji + medzera + krátky podnadpis (max 6 slov, bez bodky). Príklad: 🔥 Rozhodujúci druhý polčas
 - Krátke odseky — max 2–3 vety na odsek.
 
-PRAVIDLÁ PRE NADPIS:
+PRAVIDLÁ PRE NADPIS (najdôležitejšie):
 - NIKDY nekopíruj pôvodný nadpis — vždy vytvor NOVÝ, originálny nadpis.
-- Nadpis musí vystihnúť hlavnú pointu článku. Profesionálny, vecný tón.
-- Nepoužívaj dvojbodky (:) ani pomlčky (-) v nadpise.
+- Nadpis musí byť PRIRODZENÝ — ako keby ho napísal slovenský novinár, nie robot.
+- Nadpis MUSÍ dávať okamžitý zmysel aj bez kontextu článku.
+- ZAKÁZANÉ sú kŕčovité konštrukcie typu "Tri bratovské trénerské cesty", \
+  "Päť kľúčových strategických iniciatív", "Štyri rozhodujúce faktory úspechu".
+- Namiesto toho píš jednoducho a ľudsky: "Ako jedna rodina vychovala troch trénerov", \
+  "Holandsko zdolalo Belgicko v napínavom finále", "Nový tréner pre argentínsku reprezentáciu".
+- Nepoužívaj dvojbodky (:) ani pomlčky (–) v nadpise.
+- Nadpis má max 10–12 slov. Čím kratší, tým lepší.
 
 ĎALŠIE PRAVIDLÁ:
 - Zachovaj všetky fakty, mená, skóre a dátumy presne.
