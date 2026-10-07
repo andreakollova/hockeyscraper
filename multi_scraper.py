@@ -677,6 +677,9 @@ def scrape_site(db: Client, site: dict, existing_urls: set) -> int:
             title_rw = title_rw[0].upper() + title_rw[1:]
 
         image_url = detail.get("image_url", "") or site.get("fallback_image", "")
+        # Force HTTPS — http images break Next.js Image component
+        if image_url and image_url.startswith("http://"):
+            image_url = "https://" + image_url[7:]
         row = {
             "url":        url,
             "title":      title,
